@@ -2,6 +2,7 @@ package api
 
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.datetime.Clock
 import kotlin.uuid.ExperimentalUuidApi
@@ -26,6 +27,7 @@ import network.HttpClientProvider
  * @throws Exception if the request fails (network error, server error, parsing error, etc.)
  */
 @OptIn(ExperimentalUuidApi::class)
+@Throws(Exception::class)
 suspend fun generateNotificationBody(
     baseMessage: String,
     context: String,
@@ -33,7 +35,7 @@ suspend fun generateNotificationBody(
     intentId: String? = null,
     locale: String = "en-US"
 ): NotificationResponse {
-    return HttpClientProvider.client.post(
+    val response = HttpClientProvider.client.post(
         "${ApiConstants.BASE_URL}${ApiConstants.GENERATE_ENDPOINT}"
     ) {
         contentType(ContentType.Application.Json)
@@ -47,5 +49,14 @@ suspend fun generateNotificationBody(
                 apiKey = apiKey
             )
         )
-    }.body<NotificationResponse>()
+    }
+
+    // Print raw response for debugging
+    val rawBody = response.bodyAsText()
+    println("=== RAW API RESPONSE ===")
+    println("Status: ${response.status}")
+    println("Body: $rawBody")
+    println("========================")
+
+    return response.body<NotificationResponse>()
 }
