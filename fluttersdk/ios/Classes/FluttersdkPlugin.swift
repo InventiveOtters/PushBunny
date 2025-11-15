@@ -1,19 +1,41 @@
 import Flutter
 import UIKit
+import library
 
-public class FluttersdkPlugin: NSObject, FlutterPlugin {
+public class FluttersdkPlugin: NSObject, FlutterPlugin, PushBunnyApi {
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "fluttersdk", binaryMessenger: registrar.messenger())
     let instance = FluttersdkPlugin()
-    registrar.addMethodCallDelegate(instance, channel: channel)
+    PushBunnyApiSetup.setUp(binaryMessenger: registrar.messenger(), api: instance)
   }
 
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    switch call.method {
-    case "getPlatformVersion":
-      result("iOS " + UIDevice.current.systemVersion)
-    default:
-      result(FlutterMethodNotImplemented)
+  public func generateNotification(
+    request: NotificationRequest,
+    completion: @escaping (Result<NotificationResponse, Error>) -> Void
+  ) {
+    Task {
+      do {
+        let response = try await NotificationApiKt.generateNotificationBody(
+          baseMessage: request.baseMessage,
+          context: request.context,
+          apiKey: request.apiKey,
+          intentId: request.intentId,
+          locale: request.locale
+        )
+
+        let pigeonResponse = NotificationResponse(
+          variantId: response.variantId,
+          resolvedMessage: response.resolvedMessage
+        )
+
+        completion(.success(pigeonResponse))
+      } catch {
+        let pigeonError = PigeonError(
+          code: "NOTIFICATION_ERROR",
+          message: error.localizedDescription,
+          details: "\(error)"
+        )
+        completion(.failure(pigeonError))
+      }
     }
   }
 }

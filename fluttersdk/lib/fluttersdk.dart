@@ -1,8 +1,8 @@
+/// PushBunny Flutter SDK
+///
+/// A Flutter plugin for generating optimized push notification content
+/// using AI-powered A/B testing.
+library;
 
-import 'fluttersdk_platform_interface.dart';
-
-class Fluttersdk {
-  Future<String?> getPlatformVersion() {
-    return FluttersdkPlatform.instance.getPlatformVersion();
-  }
-}
+export 'pushbunny_client.dart';
+export 'pushbunny_pigeon.dart' show NotificationRequest, NotificationResponse;

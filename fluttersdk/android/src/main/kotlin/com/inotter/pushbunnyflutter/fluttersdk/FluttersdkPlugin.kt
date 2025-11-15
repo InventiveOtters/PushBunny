@@ -1,38 +1,58 @@
 package com.inotter.pushbunnyflutter.fluttersdk
 
+import api.generateNotificationBody
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.MethodChannel.Result
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-/** FluttersdkPlugin */
-class FluttersdkPlugin :
-    FlutterPlugin,
-    MethodCallHandler {
-    // The MethodChannel that will the communication between Flutter and native Android
-    //
-    // This local reference serves to register the plugin with the Flutter Engine and unregister it
-    // when the Flutter Engine is detached from the Activity
-    private lateinit var channel: MethodChannel
+/** FluttersdkPlugin - PushBunny Flutter SDK Plugin */
+class FluttersdkPlugin : FlutterPlugin, PushBunnyApi {
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "fluttersdk")
-        channel.setMethodCallHandler(this)
-    }
-
-    override fun onMethodCall(
-        call: MethodCall,
-        result: Result
-    ) {
-        if (call.method == "getPlatformVersion") {
-            result.success("Android ${android.os.Build.VERSION.RELEASE}")
-        } else {
-            result.notImplemented()
-        }
+        PushBunnyApi.setUp(flutterPluginBinding.binaryMessenger, this)
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        channel.setMethodCallHandler(null)
+        PushBunnyApi.setUp(binding.binaryMessenger, null)
+        scope.cancel()
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    override fun generateNotification(
+        request: NotificationRequest,
+        callback: (Result<NotificationResponse>) -> Unit
+    ) {
+        scope.launch {
+            try {
+                val response = generateNotificationBody(
+                    baseMessage = request.baseMessage,
+                    context = request.context,
+                    apiKey = request.apiKey,
+                    intentId = request.intentId ?: Uuid.random().toString(),
+                    locale = request.locale
+                )
+
+                val pigeonResponse = NotificationResponse(
+                    variantId = response.variantId,
+                    resolvedMessage = response.resolvedMessage
+                )
+
+                callback(Result.success(pigeonResponse))
+            } catch (e: Exception) {
+                val error = FlutterError(
+                    code = "NOTIFICATION_ERROR",
+                    message = e.message ?: "Failed to generate notification",
+                    details = e.stackTraceToString()
+                )
+                callback(Result.failure(error))
+            }
+        }
     }
 }
