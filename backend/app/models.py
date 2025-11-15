@@ -29,20 +29,18 @@ class Variant(Base):
 
 class Metric(Base):
     """
-    Stores user reactions to push notifications.
-    Tracks sent, opened, and clicked events.
+    Stores push notification events.
+    Tracks sent and clicked events.
     """
     __tablename__ = "metrics"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(Text, nullable=False, index=True)
-    intent_id = Column(Text, nullable=False, index=True)
     variant_id = Column(UUID(as_uuid=True), ForeignKey("variants.id"), nullable=False, index=True)
-    event_type = Column(Text, nullable=False)  # sent, opened, clicked
+    event_type = Column(Text, nullable=False)  # sent, clicked
     timestamp = Column(TIMESTAMP(timezone=True), nullable=False)
     
     def __repr__(self):
-        return f"<Metric {self.id} user={self.user_id} event={self.event_type}>"
+        return f"<Metric {self.id} variant={self.variant_id} event={self.event_type}>"
 
 
 class ApiKey(Base):

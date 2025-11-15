@@ -31,23 +31,23 @@ export async function getVariants(intentId, apiKey) {
 }
 
 export async function getAllIntents(apiKey) {
-  // Since we don't have a dedicated endpoint, we'll fetch common intents
-  // In production, you'd want a backend endpoint that returns all unique intent_ids
-  const commonIntents = ['cart_abandon', 'price_drop', 'order_shipped', 'back_in_stock']
-  
-  const results = await Promise.allSettled(
-    commonIntents.map(intentId => getVariants(intentId, apiKey))
-  )
-
-  const intents = []
-  results.forEach((result, index) => {
-    if (result.status === 'fulfilled' && result.value.length > 0) {
-      intents.push({
-        intentId: commonIntents[index],
-        variants: result.value
-      })
-    }
+  const response = await fetch(`${API_BASE_URL}/v1/variants`, {
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+    },
   })
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch all variants')
+  }
+
+  const variantsByIntent = await response.json()
+  
+  // Transform the response from object to array format
+  const intents = Object.entries(variantsByIntent).map(([intentId, variants]) => ({
+    intentId,
+    variants
+  }))
 
   return intents
 }

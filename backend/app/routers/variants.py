@@ -8,10 +8,39 @@ from sqlalchemy.orm import Session
 import logging
 from ..database import get_db
 from ..schemas import VariantSummary
-from ..services.variant_logic import get_variants_with_metrics
+from ..services.variant_logic import get_variants_with_metrics, get_all_variants_grouped
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/v1", tags=["variants"])
+
+
+@router.get("/variants")
+def get_all_variants(db: Session = Depends(get_db)):
+    """
+    Get all variants grouped by intent_id with aggregated metrics.
+    
+    Used by the dashboard to display all intents and their variants.
+    
+    Args:
+        db: Database session
+        
+    Returns:
+        Dict mapping intent_id to list of variants with metrics
+    """
+    try:
+        variants_by_intent = get_all_variants_grouped(db)
+        
+        if not variants_by_intent:
+            logger.info("No variants found in database")
+            return {}
+        
+        logger.info(f"Retrieved variants for {len(variants_by_intent)} intents")
+        
+        return variants_by_intent
+        
+    except Exception as e:
+        logger.error(f"Error retrieving all variants: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve variants: {str(e)}")
 
 
 @router.get("/variants/{intent_id}", response_model=list[VariantSummary])

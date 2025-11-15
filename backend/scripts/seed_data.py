@@ -59,32 +59,18 @@ def seed_database():
             for j in range(20):
                 # Sent metric
                 metrics.append(Metric(
-                    user_id=f"user_{j}",
-                    intent_id="cart_abandon",
                     variant_id=variant.id,
                     event_type="sent",
                     timestamp=base_time + timedelta(hours=j)
                 ))
                 
-                # Some opened
-                if j % 3 == i:
+                # Some clicked (approximately 20% click rate)
+                if j % 5 == i:
                     metrics.append(Metric(
-                        user_id=f"user_{j}",
-                        intent_id="cart_abandon",
                         variant_id=variant.id,
-                        event_type="opened",
+                        event_type="clicked",
                         timestamp=base_time + timedelta(hours=j, minutes=5)
                     ))
-                    
-                    # Some clicked
-                    if j % 6 == i:
-                        metrics.append(Metric(
-                            user_id=f"user_{j}",
-                            intent_id="cart_abandon",
-                            variant_id=variant.id,
-                            event_type="clicked",
-                            timestamp=base_time + timedelta(hours=j, minutes=10)
-                        ))
         
         for metric in metrics:
             db.add(metric)

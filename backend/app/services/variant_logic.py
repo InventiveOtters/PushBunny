@@ -80,11 +80,6 @@ def get_variants_with_metrics(db: Session, intent_id: str) -> list[dict]:
             Metric.event_type == "sent"
         ).count()
         
-        opened = db.query(Metric).filter(
-            Metric.variant_id == variant.id,
-            Metric.event_type == "opened"
-        ).count()
-        
         clicked = db.query(Metric).filter(
             Metric.variant_id == variant.id,
             Metric.event_type == "clicked"
@@ -94,9 +89,30 @@ def get_variants_with_metrics(db: Session, intent_id: str) -> list[dict]:
             "variant_id": str(variant.id),
             "message": variant.message,
             "sent": sent,
-            "opened": opened,
             "clicked": clicked
         })
+    
+    return result
+
+
+def get_all_variants_grouped(db: Session) -> dict[str, list[dict]]:
+    """
+    Get all variants grouped by intent_id with aggregated metrics.
+    
+    Args:
+        db: Database session
+        
+    Returns:
+        Dict mapping intent_id to list of variant data with metrics
+    """
+    # Get all unique intent_ids
+    intent_ids = db.query(Variant.intent_id).distinct().all()
+    
+    result = {}
+    for (intent_id,) in intent_ids:
+        variants_data = get_variants_with_metrics(db, intent_id)
+        if variants_data:
+            result[intent_id] = variants_data
     
     return result
 

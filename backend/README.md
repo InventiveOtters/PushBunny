@@ -74,18 +74,20 @@ Returns an optimized message for the given intent + user.
 
 ### **POST `/v1/metrics`**
 
-Stores reactions to messages (sent, opened, clicked).
+Stores notification events (sent, clicked).
 
 **Request:**
 ```json
 {
-  "user_id": "user_123",
-  "intent_id": "cart_abandon",
-  "variant_id": "v_89327",
-  "event_type": "opened",
+  "variant_id": "a2f3c523-9240-4013-8e86-acf2600c6129",
+  "event_type": "clicked",
   "timestamp": "2025-02-15T12:01:12Z"
 }
 ```
+
+**Event types:**
+- `sent` - Notification was sent
+- `clicked` - Notification was clicked
 
 **Response:**
 ```json
@@ -113,9 +115,43 @@ Returns an API key for dashboard/backend access.
 }
 ```
 
+### **GET `/v1/variants`**
+
+Returns all variants grouped by intent_id with metrics. Used by dashboard to display all intents.
+
+**Response:**
+```json
+{
+  "cart_abandon": [
+    {
+      "variant_id": "v_1",
+      "message": "Still thinking about your item?",
+      "sent": 120,
+      "clicked": 4
+    },
+    {
+      "variant_id": "v_2",
+      "message": "Your headphones are waiting 🎧",
+      "sent": 98,
+      "clicked": 9
+    }
+  ],
+  "price_drop": [
+    {
+      "variant_id": "v_3",
+      "message": "Price dropped on an item you viewed!",
+      "sent": 85,
+      "clicked": 12
+    }
+  ]
+}
+```
+
+---
+
 ### **GET `/v1/variants/{intent_id}`**
 
-Returns all generated variants + metrics summary for dashboard.
+Returns all generated variants + metrics summary for a specific intent.
 
 **Response:**
 ```json
@@ -124,14 +160,12 @@ Returns all generated variants + metrics summary for dashboard.
     "variant_id": "v_1",
     "message": "Still thinking about your item?",
     "sent": 120,
-    "opened": 23,
     "clicked": 4
   },
   {
     "variant_id": "v_2",
     "message": "Your headphones are waiting 🎧",
     "sent": 98,
-    "opened": 31,
     "clicked": 9
   }
 ]
@@ -156,10 +190,8 @@ Returns all generated variants + metrics summary for dashboard.
 | Column      | Type      | Notes                      |
 |-------------|-----------|----------------------------|
 | id (PK)     | UUID      |                            |
-| user_id     | TEXT      |                            |
-| intent_id   | TEXT      |                            |
 | variant_id  | UUID (FK) | References `variants.id`   |
-| event_type  | TEXT      | sent/opened/clicked        |
+| event_type  | TEXT      | sent/clicked               |
 | timestamp   | TIMESTAMP |                            |
 
 ### **Table: api_keys**

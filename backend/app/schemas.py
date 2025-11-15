@@ -31,19 +31,15 @@ class ResolveResponse(BaseModel):
 
 class MetricRequest(BaseModel):
     """Request schema for /v1/metrics endpoint."""
-    user_id: str
-    intent_id: str
     variant_id: str
-    event_type: str = Field(..., description="Event type: sent, opened, or clicked")
+    event_type: str = Field(..., description="Event type: 'sent' or 'clicked'")
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     
     class Config:
         json_schema_extra = {
             "example": {
-                "user_id": "user_123",
-                "intent_id": "cart_abandon",
-                "variant_id": "v_89327",
-                "event_type": "opened",
+                "variant_id": "a2f3c523-9240-4013-8e86-acf2600c6129",
+                "event_type": "clicked",
                 "timestamp": "2025-02-15T12:01:12Z"
             }
         }

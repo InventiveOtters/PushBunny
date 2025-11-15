@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { login as apiLogin } from '../services/api'
-import { Lock, Mail, Loader2 } from 'lucide-react'
+import { Lock, Mail, Loader2, Sparkles } from 'lucide-react'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -55,8 +55,12 @@ export default function Login() {
       >
         <div className="glass p-8 rounded-3xl">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
-            <p className="text-gray-400">Sign in to access your dashboard</p>
+            <h1 className="text-3xl font-bold mb-2">Access Dashboard</h1>
+            <p className="text-gray-400 mb-3">Enter your credentials to continue</p>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-purple/10 border border-accent-purple/30 rounded-xl text-sm">
+              <Sparkles className="w-4 h-4 text-accent-purple" />
+              <span className="text-gray-300">Demo: Creates account if new, logs in if existing</span>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -120,8 +124,13 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-400">
-            <p>Demo credentials: any email/password</p>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-400 mb-2">
+              💡 For demo: Use any email & password
+            </p>
+            <p className="text-xs text-gray-500">
+              First time? Account created automatically. Already have one? You'll be logged in.
+            </p>
           </div>
         </div>
       </motion.div>

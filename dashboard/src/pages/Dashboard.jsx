@@ -7,7 +7,6 @@ import {
   RefreshCw, 
   TrendingUp, 
   MousePointerClick, 
-  Eye,
   Send,
   Sparkles
 } from 'lucide-react'
@@ -120,7 +119,7 @@ export default function Dashboard() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
+                className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
               >
                 <StatCard
                   icon={<Send className="w-5 h-5" />}
@@ -129,22 +128,16 @@ export default function Dashboard() {
                   color="blue"
                 />
                 <StatCard
-                  icon={<Eye className="w-5 h-5" />}
-                  label="Total Opened"
-                  value={stats.totalOpened}
-                  color="purple"
-                />
-                <StatCard
                   icon={<MousePointerClick className="w-5 h-5" />}
                   label="Total Clicked"
                   value={stats.totalClicked}
-                  color="pink"
+                  color="purple"
                 />
                 <StatCard
                   icon={<TrendingUp className="w-5 h-5" />}
                   label="Click Rate"
                   value={`${stats.ctr}%`}
-                  color="green"
+                  color="pink"
                 />
               </motion.div>
             )}
@@ -186,9 +179,7 @@ export default function Dashboard() {
                       <tr className="border-b border-white/10">
                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Message</th>
                         <th className="px-6 py-4 text-center text-sm font-semibold text-gray-300">Sent</th>
-                        <th className="px-6 py-4 text-center text-sm font-semibold text-gray-300">Opened</th>
                         <th className="px-6 py-4 text-center text-sm font-semibold text-gray-300">Clicked</th>
-                        <th className="px-6 py-4 text-center text-sm font-semibold text-gray-300">Open Rate</th>
                         <th className="px-6 py-4 text-center text-sm font-semibold text-gray-300">CTR</th>
                       </tr>
                     </thead>
@@ -251,7 +242,6 @@ function BarChartComponent({ variants }) {
   const data = variants.map((v, i) => ({
     name: `V${i + 1}`,
     sent: v.sent,
-    opened: v.opened,
     clicked: v.clicked,
   }))
 
@@ -269,8 +259,7 @@ function BarChartComponent({ variants }) {
           }}
         />
         <Bar dataKey="sent" fill="#3B82F6" radius={[8, 8, 0, 0]} />
-        <Bar dataKey="opened" fill="#8B5CF6" radius={[8, 8, 0, 0]} />
-        <Bar dataKey="clicked" fill="#EC4899" radius={[8, 8, 0, 0]} />
+        <Bar dataKey="clicked" fill="#8B5CF6" radius={[8, 8, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   )
@@ -279,8 +268,8 @@ function BarChartComponent({ variants }) {
 function LineChartComponent({ variants }) {
   const data = variants.map((v, i) => ({
     name: `V${i + 1}`,
-    'Open Rate': v.sent > 0 ? ((v.opened / v.sent) * 100).toFixed(1) : 0,
-    'Click Rate': v.sent > 0 ? ((v.clicked / v.sent) * 100).toFixed(1) : 0,
+    'CTR': v.sent > 0 ? ((v.clicked / v.sent) * 100).toFixed(1) : 0,
+    'Sent': v.sent,
   }))
 
   return (
@@ -298,17 +287,17 @@ function LineChartComponent({ variants }) {
         />
         <Line 
           type="monotone" 
-          dataKey="Open Rate" 
+          dataKey="CTR" 
           stroke="#8B5CF6" 
           strokeWidth={3}
           dot={{ fill: '#8B5CF6', r: 4 }}
         />
         <Line 
           type="monotone" 
-          dataKey="Click Rate" 
-          stroke="#EC4899" 
+          dataKey="Sent" 
+          stroke="#3B82F6" 
           strokeWidth={3}
-          dot={{ fill: '#EC4899', r: 4 }}
+          dot={{ fill: '#3B82F6', r: 4 }}
         />
       </LineChart>
     </ResponsiveContainer>
@@ -316,7 +305,6 @@ function LineChartComponent({ variants }) {
 }
 
 function VariantRow({ variant, index }) {
-  const openRate = variant.sent > 0 ? ((variant.opened / variant.sent) * 100).toFixed(1) : 0
   const ctr = variant.sent > 0 ? ((variant.clicked / variant.sent) * 100).toFixed(1) : 0
 
   return (
@@ -341,16 +329,8 @@ function VariantRow({ variant, index }) {
       </td>
       <td className="px-6 py-4 text-center">
         <span className="px-3 py-1 bg-accent-purple/20 rounded-lg text-sm font-medium">
-          {variant.opened}
-        </span>
-      </td>
-      <td className="px-6 py-4 text-center">
-        <span className="px-3 py-1 bg-accent-pink/20 rounded-lg text-sm font-medium">
           {variant.clicked}
         </span>
-      </td>
-      <td className="px-6 py-4 text-center">
-        <span className="text-sm font-medium">{openRate}%</span>
       </td>
       <td className="px-6 py-4 text-center">
         <span className={`text-sm font-semibold ${
@@ -402,11 +382,10 @@ function EmptyState() {
 
 function calculateStats(variants) {
   const totalSent = variants.reduce((sum, v) => sum + v.sent, 0)
-  const totalOpened = variants.reduce((sum, v) => sum + v.opened, 0)
   const totalClicked = variants.reduce((sum, v) => sum + v.clicked, 0)
   const ctr = totalSent > 0 ? ((totalClicked / totalSent) * 100).toFixed(1) : 0
 
-  return { totalSent, totalOpened, totalClicked, ctr }
+  return { totalSent, totalClicked, ctr }
 }
 
 function formatIntentName(intentId) {

@@ -1,6 +1,6 @@
 """
 /v1/metrics endpoint router.
-Stores user reactions to push notifications (sent, opened, clicked).
+Stores push notification events (sent, clicked).
 """
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/v1", tags=["metrics"])
 
 
-ALLOWED_EVENT_TYPES = {"sent", "opened", "clicked"}
+ALLOWED_EVENT_TYPES = {"sent", "clicked"}
 
 
 @router.post("/metrics", response_model=MetricResponse)
@@ -24,12 +24,11 @@ def record_metric(
     db: Session = Depends(get_db)
 ) -> MetricResponse:
     """
-    Record a user reaction metric.
+    Record a push notification event.
     
     Allowed event types:
-    - sent: Notification was sent to user
-    - opened: User opened the notification
-    - clicked: User clicked on the notification
+    - sent: Notification was sent
+    - clicked: Notification was clicked
     
     Args:
         request: Metric data
@@ -56,8 +55,6 @@ def record_metric(
         
         # Create metric record
         metric = Metric(
-            user_id=request.user_id,
-            intent_id=request.intent_id,
             variant_id=variant_uuid,
             event_type=request.event_type,
             timestamp=request.timestamp
@@ -67,8 +64,7 @@ def record_metric(
         db.commit()
         
         logger.info(
-            f"Recorded {request.event_type} metric for user {request.user_id}, "
-            f"variant {request.variant_id}"
+            f"Recorded {request.event_type} metric for variant {request.variant_id}"
         )
         
         return MetricResponse(status="ok")
