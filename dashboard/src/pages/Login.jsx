@@ -30,11 +30,11 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-primary relative overflow-hidden flex items-center justify-center">
+    <div className="min-h-screen notebook-bg relative overflow-hidden flex items-center justify-center">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-accent-purple/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-accent-blue/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+        <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-accent-coral/15 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-accent-coral/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
       </div>
 
       {/* Back to home link */}
@@ -42,8 +42,15 @@ export default function Login() {
         to="/"
         className="absolute top-6 left-6 flex items-center gap-2 glass px-4 py-2 rounded-xl hover:bg-white/10 transition-all z-10"
       >
-        <span className="text-2xl">🐰</span>
-        <span className="font-semibold">PushBunny</span>
+        <img 
+          src="/logo.png" 
+          alt="PushBunny Logo" 
+          className="w-8 h-8 object-contain"
+        />
+        <span className="font-semibold">
+          <span className="text-accent-coral">Push</span>
+          <span className="text-white">Bunny</span>
+        </span>
       </Link>
 
       {/* Login Form */}

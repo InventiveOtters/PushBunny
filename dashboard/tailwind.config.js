@@ -8,7 +8,7 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#02001A',
+          DEFAULT: '#01000C',
           light: '#0A0828',
           lighter: '#1A1640',
         },
@@ -17,6 +17,7 @@ export default {
           blue: '#3B82F6',
           pink: '#EC4899',
           green: '#10B981',
+          coral: '#FF938C',
         }
       },
       animation: {

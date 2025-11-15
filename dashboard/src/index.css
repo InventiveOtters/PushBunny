@@ -12,19 +12,30 @@
 
 @layer utilities {
   .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+    @apply bg-[#0F102A] border border-white/10;
   }
   
   .glass-hover {
-    @apply hover:bg-white/10 transition-all duration-300;
+    @apply hover:bg-[#15163a] transition-all duration-300;
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-accent-purple via-accent-blue to-accent-pink bg-clip-text text-transparent;
+    @apply text-accent-coral;
   }
 
   .gradient-bg {
-    @apply bg-gradient-to-br from-accent-purple/20 via-accent-blue/20 to-accent-pink/20;
+    @apply bg-[#0F102A];
+  }
+
+  .notebook-bg {
+    background-color: #01000C;
+    background-image: 
+      linear-gradient(rgba(255, 147, 140, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 147, 140, 0.05) 1px, transparent 1px),
+      linear-gradient(rgba(255, 147, 140, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 147, 140, 0.08) 1px, transparent 1px);
+    background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+    background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px;
   }
 }
 

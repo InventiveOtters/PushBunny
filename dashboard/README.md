@@ -14,7 +14,8 @@ Modern, beautiful dashboard for PushBunny analytics with smooth animations and d
 ## 🎯 Pages
 
 ### Landing Page
-- Hero section with call-to-action
+- Hero section with animated typing effect
+- **Notification Showcase** - Interactive phone mockup with slot-machine word rotation
 - Feature highlights
 - Navigation to dashboard
 
@@ -102,6 +103,8 @@ dashboard/
 │   │   ├── Landing.jsx       # Landing page
 │   │   ├── Login.jsx         # Login flow
 │   │   └── Dashboard.jsx     # Main dashboard
+│   ├── components/
+│   │   └── NotificationShowcase.jsx  # Slot machine demo
 │   ├── contexts/
 │   │   └── AuthContext.jsx   # Authentication state
 │   ├── services/
@@ -109,6 +112,9 @@ dashboard/
 │   ├── App.jsx               # Main app component
 │   ├── main.jsx              # Entry point
 │   └── index.css             # Global styles
+├── public/
+│   ├── logo.png              # Logo image
+│   └── pushbunny.riv         # Rive animation
 ├── index.html
 ├── vite.config.js
 ├── tailwind.config.js

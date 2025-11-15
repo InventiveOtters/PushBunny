@@ -53,14 +53,21 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-primary">
+    <div className="min-h-screen notebook-bg">
       {/* Header */}
       <header className="border-b border-white/10 glass sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-3xl">🐰</span>
+            <img 
+              src="/logo.png" 
+              alt="PushBunny Logo" 
+              className="w-10 h-10 object-contain"
+            />
             <div>
-              <h1 className="text-xl font-bold gradient-text">PushBunny</h1>
+              <h1 className="text-xl font-bold">
+                <span className="text-accent-coral">Push</span>
+                <span className="text-white">Bunny</span>
+              </h1>
               <p className="text-xs text-gray-400">Analytics Dashboard</p>
             </div>
           </div>
@@ -345,7 +352,7 @@ function VariantRow({ variant, index }) {
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen bg-primary flex items-center justify-center">
+    <div className="min-h-screen notebook-bg flex items-center justify-center">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
