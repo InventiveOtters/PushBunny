@@ -8,7 +8,7 @@ public class FluttersdkPlugin: NSObject, FlutterPlugin, PushBunnyApi {
     PushBunnyApiSetup.setUp(binaryMessenger: registrar.messenger(), api: instance)
   }
 
-  public func generateNotification(
+  func generateNotification(
     request: NotificationRequest,
     completion: @escaping (Result<NotificationResponse, Error>) -> Void
   ) {
