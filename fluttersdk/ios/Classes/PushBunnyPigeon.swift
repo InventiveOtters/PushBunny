@@ -137,6 +137,64 @@ struct NotificationResponse {
   }
 }
 
+/// Request data for recording a metric event.
+/// Maps to the Kotlin SDK's MetricRequest model.
+///
+/// Generated class from Pigeon that represents data sent in messages.
+struct MetricRequest {
+  /// The variant ID returned from generateNotificationBody
+  var variantId: String
+  /// The type of event: "sent" or "clicked"
+  var eventType: String
+  /// Optional ISO 8601 timestamp (defaults to current time if not provided)
+  var timestamp: String? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> MetricRequest? {
+    let variantId = pigeonVar_list[0] as! String
+    let eventType = pigeonVar_list[1] as! String
+    let timestamp: String? = nilOrValue(pigeonVar_list[2])
+
+    return MetricRequest(
+      variantId: variantId,
+      eventType: eventType,
+      timestamp: timestamp
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      variantId,
+      eventType,
+      timestamp,
+    ]
+  }
+}
+
+/// Response data from metric recording.
+/// Maps to the Kotlin SDK's MetricResponse model.
+///
+/// Generated class from Pigeon that represents data sent in messages.
+struct MetricResponse {
+  /// Status of the metric recording (typically "ok")
+  var status: String
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> MetricResponse? {
+    let status = pigeonVar_list[0] as! String
+
+    return MetricResponse(
+      status: status
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      status
+    ]
+  }
+}
+
 /// Error information for PushBunny operations.
 ///
 /// Generated class from Pigeon that represents data sent in messages.
@@ -178,6 +236,10 @@ private class PushBunnyPigeonPigeonCodecReader: FlutterStandardReader {
     case 130:
       return NotificationResponse.fromList(self.readValue() as! [Any?])
     case 131:
+      return MetricRequest.fromList(self.readValue() as! [Any?])
+    case 132:
+      return MetricResponse.fromList(self.readValue() as! [Any?])
+    case 133:
       return PushBunnyError.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
@@ -193,8 +255,14 @@ private class PushBunnyPigeonPigeonCodecWriter: FlutterStandardWriter {
     } else if let value = value as? NotificationResponse {
       super.writeByte(130)
       super.writeValue(value.toList())
-    } else if let value = value as? PushBunnyError {
+    } else if let value = value as? MetricRequest {
       super.writeByte(131)
+      super.writeValue(value.toList())
+    } else if let value = value as? MetricResponse {
+      super.writeByte(132)
+      super.writeValue(value.toList())
+    } else if let value = value as? PushBunnyError {
+      super.writeByte(133)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -229,6 +297,16 @@ protocol PushBunnyApi {
   ///
   /// Throws a PlatformException on error with details from PushBunnyError.
   func generateNotification(request: NotificationRequest, completion: @escaping (Result<NotificationResponse, Error>) -> Void)
+  /// Records a notification metric event to the PushBunny backend.
+  ///
+  /// This method tracks notification lifecycle events (sent, clicked) for A/B testing
+  /// and analytics purposes. The backend uses these metrics to determine which notification
+  /// variants perform best.
+  ///
+  /// This method calls the Kotlin SDK's recordMetric function.
+  ///
+  /// Throws a PlatformException on error with details from PushBunnyError.
+  func recordMetric(request: MetricRequest, completion: @escaping (Result<MetricResponse, Error>) -> Void)
 }
 
 /// Generated setup class from Pigeon to handle messages through the `binaryMessenger`.
@@ -258,6 +336,32 @@ class PushBunnyApiSetup {
       }
     } else {
       generateNotificationChannel.setMessageHandler(nil)
+    }
+    /// Records a notification metric event to the PushBunny backend.
+    ///
+    /// This method tracks notification lifecycle events (sent, clicked) for A/B testing
+    /// and analytics purposes. The backend uses these metrics to determine which notification
+    /// variants perform best.
+    ///
+    /// This method calls the Kotlin SDK's recordMetric function.
+    ///
+    /// Throws a PlatformException on error with details from PushBunnyError.
+    let recordMetricChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.fluttersdk.PushBunnyApi.recordMetric\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      recordMetricChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let requestArg = args[0] as! MetricRequest
+        api.recordMetric(request: requestArg) { result in
+          switch result {
+          case .success(let res):
+            reply(wrapResult(res))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
+        }
+      }
+    } else {
+      recordMetricChannel.setMessageHandler(nil)
     }
   }
 }

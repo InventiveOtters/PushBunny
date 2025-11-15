@@ -4,17 +4,19 @@
 
 import 'package:pigeon/pigeon.dart';
 
-@ConfigurePigeon(PigeonOptions(
-  dartOut: 'lib/pushbunny_pigeon.dart',
-  dartOptions: DartOptions(),
-  kotlinOut: 'android/src/main/kotlin/com/inotter/pushbunnyflutter/fluttersdk/PushBunnyPigeon.kt',
-  kotlinOptions: KotlinOptions(
-    package: 'com.inotter.pushbunnyflutter.fluttersdk',
+@ConfigurePigeon(
+  PigeonOptions(
+    dartOut: 'lib/pushbunny_pigeon.dart',
+    dartOptions: DartOptions(),
+    kotlinOut:
+        'android/src/main/kotlin/com/inotter/pushbunnyflutter/fluttersdk/PushBunnyPigeon.kt',
+    kotlinOptions: KotlinOptions(
+      package: 'com.inotter.pushbunnyflutter.fluttersdk',
+    ),
+    swiftOut: 'ios/Classes/PushBunnyPigeon.swift',
+    swiftOptions: SwiftOptions(),
   ),
-  swiftOut: 'ios/Classes/PushBunnyPigeon.swift',
-  swiftOptions: SwiftOptions(),
-))
-
+)
 /// Request data for generating a notification.
 /// Maps to the Kotlin SDK's NotificationRequest model.
 class NotificationRequest {
@@ -57,13 +59,37 @@ class NotificationResponse {
   final String resolvedMessage;
 }
 
+/// Request data for recording a metric event.
+/// Maps to the Kotlin SDK's MetricRequest model.
+class MetricRequest {
+  MetricRequest({
+    required this.variantId,
+    required this.eventType,
+    this.timestamp,
+  });
+
+  /// The variant ID returned from generateNotificationBody
+  final String variantId;
+
+  /// The type of event: "sent" or "clicked"
+  final String eventType;
+
+  /// Optional ISO 8601 timestamp (defaults to current time if not provided)
+  final String? timestamp;
+}
+
+/// Response data from metric recording.
+/// Maps to the Kotlin SDK's MetricResponse model.
+class MetricResponse {
+  MetricResponse({required this.status});
+
+  /// Status of the metric recording (typically "ok")
+  final String status;
+}
+
 /// Error information for PushBunny operations.
 class PushBunnyError {
-  PushBunnyError({
-    required this.code,
-    required this.message,
-    this.details,
-  });
+  PushBunnyError({required this.code, required this.message, this.details});
 
   /// Error code (e.g., "NETWORK_ERROR", "API_ERROR", "INVALID_REQUEST")
   final String code;
@@ -87,5 +113,16 @@ abstract class PushBunnyApi {
   /// Throws a PlatformException on error with details from PushBunnyError.
   @async
   NotificationResponse generateNotification(NotificationRequest request);
-}
 
+  /// Records a notification metric event to the PushBunny backend.
+  ///
+  /// This method tracks notification lifecycle events (sent, clicked) for A/B testing
+  /// and analytics purposes. The backend uses these metrics to determine which notification
+  /// variants perform best.
+  ///
+  /// This method calls the Kotlin SDK's recordMetric function.
+  ///
+  /// Throws a PlatformException on error with details from PushBunnyError.
+  @async
+  MetricResponse recordMetric(MetricRequest request);
+}
