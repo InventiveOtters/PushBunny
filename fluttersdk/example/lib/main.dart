@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttersdk/fluttersdk.dart';
 import 'services/notification_service.dart';
+import 'services/notification_storage_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,6 +17,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _client = PushBunnyClient();
   final _notificationService = NotificationService();
+  final _storageService = NotificationStorageService.instance;
   final _baseMessageController = TextEditingController(
     text: 'Your package has arrived!',
   );
@@ -34,6 +36,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> _initializeNotifications() async {
     await _notificationService.initialize();
     await _notificationService.requestPermissions();
+    await _storageService.initialize();
   }
 
   @override
@@ -59,6 +62,11 @@ class _MyAppState extends State<MyApp> {
       );
 
       final response = await _client.generateNotification(request);
+
+      await _storageService.saveNotification(
+        resolvedMessage: response.resolvedMessage,
+        variantId: response.variantId,
+      );
 
       await _notificationService.showNotification(
         title: 'PushBunny',
