@@ -1,29 +1,56 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fluttersdk/fluttersdk.dart';
-import 'package:fluttersdk/fluttersdk_platform_interface.dart';
-import 'package:fluttersdk/fluttersdk_method_channel.dart';
-import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
-class MockFluttersdkPlatform
-    with MockPlatformInterfaceMixin
-    implements FluttersdkPlatform {
-
-  @override
-  Future<String?> getPlatformVersion() => Future.value('42');
-}
 
 void main() {
-  final FluttersdkPlatform initialPlatform = FluttersdkPlatform.instance;
+  group('PushBunnyClient', () {
+    test('creates NotificationRequest with correct parameters', () {
+      final request = NotificationRequest(
+        baseMessage: 'Test message',
+        context: 'test',
+        apiKey: 'test-key',
+        intentId: 'test-intent',
+        locale: 'en-US',
+      );
 
-  test('$MethodChannelFluttersdk is the default instance', () {
-    expect(initialPlatform, isInstanceOf<MethodChannelFluttersdk>());
-  });
+      expect(request.baseMessage, 'Test message');
+      expect(request.context, 'test');
+      expect(request.apiKey, 'test-key');
+      expect(request.intentId, 'test-intent');
+      expect(request.locale, 'en-US');
+    });
 
-  test('getPlatformVersion', () async {
-    Fluttersdk fluttersdkPlugin = Fluttersdk();
-    MockFluttersdkPlatform fakePlatform = MockFluttersdkPlatform();
-    FluttersdkPlatform.instance = fakePlatform;
+    test('NotificationRequest uses default locale', () {
+      final request = NotificationRequest(
+        baseMessage: 'Test message',
+        context: 'test',
+        apiKey: 'test-key',
+      );
 
-    expect(await fluttersdkPlugin.getPlatformVersion(), '42');
+      expect(request.locale, 'en-US');
+    });
+
+    test('NotificationResponse contains required fields', () {
+      final response = NotificationResponse(
+        variantId: 'variant-123',
+        resolvedMessage: 'Optimized message',
+      );
+
+      expect(response.variantId, 'variant-123');
+      expect(response.resolvedMessage, 'Optimized message');
+    });
+
+    test('PushBunnyException formats correctly', () {
+      final exception = PushBunnyException(
+        code: 'TEST_ERROR',
+        message: 'Test error message',
+        details: 'Additional details',
+      );
+
+      expect(exception.code, 'TEST_ERROR');
+      expect(exception.message, 'Test error message');
+      expect(exception.details, 'Additional details');
+      expect(exception.toString(), contains('TEST_ERROR'));
+      expect(exception.toString(), contains('Test error message'));
+    });
   });
 }
