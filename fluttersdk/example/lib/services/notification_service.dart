@@ -10,7 +10,9 @@ class NotificationService {
 
   bool _initialized = false;
 
-  Future<void> initialize() async {
+  Future<void> initialize({
+    void Function(String? payload)? onNotificationTapped,
+  }) async {
     if (_initialized) return;
 
     const androidSettings = AndroidInitializationSettings('ic_notification');
@@ -30,7 +32,11 @@ class NotificationService {
 
     await _notifications.initialize(
       initSettings,
-      onDidReceiveNotificationResponse: (details) {},
+      onDidReceiveNotificationResponse: (details) {
+        if (onNotificationTapped != null) {
+          onNotificationTapped(details.payload);
+        }
+      },
     );
     _initialized = true;
   }
@@ -73,6 +79,7 @@ class NotificationService {
   Future<void> showNotification({
     required String title,
     required String body,
+    String? payload,
   }) async {
     if (!_initialized) {
       await initialize();
@@ -100,6 +107,12 @@ class NotificationService {
 
     final notificationId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
-    await _notifications.show(notificationId, title, body, notificationDetails);
+    await _notifications.show(
+      notificationId,
+      title,
+      body,
+      notificationDetails,
+      payload: payload,
+    );
   }
 }

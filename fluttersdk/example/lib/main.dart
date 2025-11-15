@@ -34,9 +34,27 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _initializeNotifications() async {
-    await _notificationService.initialize();
+    await _notificationService.initialize(
+      onNotificationTapped: _handleNotificationTap,
+    );
     await _notificationService.requestPermissions();
     await _storageService.initialize();
+  }
+
+  Future<void> _handleNotificationTap(String? payload) async {
+    if (payload == null) return;
+
+    final variantId = await _storageService.getVariantId(payload);
+    if (variantId == null) return;
+
+    try {
+      await _client.recordMetric(
+        PushBunnyMetricRequest(variantId: variantId, eventType: 'clicked'),
+      );
+      print('Recorded "clicked" metric for variant: $variantId');
+    } on PushBunnyException catch (e) {
+      print('Failed to record clicked metric: ${e.message}');
+    }
   }
 
   @override
@@ -71,7 +89,20 @@ class _MyAppState extends State<MyApp> {
       await _notificationService.showNotification(
         title: 'PushBunny',
         body: response.resolvedMessage,
+        payload: response.resolvedMessage,
       );
+
+      try {
+        await _client.recordMetric(
+          PushBunnyMetricRequest(
+            variantId: response.variantId,
+            eventType: 'sent',
+          ),
+        );
+        print('Recorded "sent" metric for variant: ${response.variantId}');
+      } on PushBunnyException catch (e) {
+        print('Failed to record sent metric: ${e.message}');
+      }
 
       setState(() {
         _result =
