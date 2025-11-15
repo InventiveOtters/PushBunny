@@ -76,6 +76,20 @@ kotlin {
     }
 }
 
+// Exclude integration tests from default build
+// Run integration tests explicitly with: ./gradlew :library:jvmTest -PrunIntegrationTests=true
+tasks.withType<Test> {
+    val runIntegrationTests = project.findProperty("runIntegrationTests")?.toString()?.toBoolean() ?: false
+    val hasTestFilter = gradle.startParameter.taskRequests.any {
+        it.args.any { arg -> arg.contains("--tests") }
+    }
+
+    // Only exclude if not explicitly running integration tests and no test filter is specified
+    if (!runIntegrationTests && !hasTestFilter) {
+        exclude("**/api/*IntegrationTest*")
+    }
+}
+
 mavenPublishing {
     publishToMavenCentral()
 
