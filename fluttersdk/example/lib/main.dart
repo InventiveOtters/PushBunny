@@ -38,12 +38,14 @@ class _MyAppState extends State<MyApp> {
     });
 
     try {
-      final response = await _client.generateNotification(
+      final request = PushBunnyNotificationRequest(
         baseMessage: _baseMessageController.text,
         context: _contextController.text,
         apiKey: _apiKeyController.text,
         locale: 'en-US',
       );
+
+      final response = await _client.generateNotification(request);
 
       setState(() {
         _result =
