@@ -1,5 +1,15 @@
 # 🐰 PushBunny Backend
 
+```
+docker run --name local-postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_DB=postgres \
+  -p 5432:5432 \
+  -d postgres:latest
+```
+
+
 AI-optimized push notification backend powered by **FastAPI**, **n8n**, and **Gemini**.
 
 PushBunny receives notification intents from the SDK, forwards them to n8n for AI processing, stores generated variants and metrics, and returns the best current message for each user.
