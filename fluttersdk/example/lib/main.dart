@@ -1,203 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:fluttersdk/fluttersdk.dart';
-import 'services/notification_service.dart';
-import 'services/notification_storage_service.dart';
+import 'notification_screen.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  final _client = PushBunnyClient();
-  final _notificationService = NotificationService();
-  final _storageService = NotificationStorageService.instance;
-  final _baseMessageController = TextEditingController(
-    text: 'Your package has arrived!',
-  );
-  final _contextController = TextEditingController(text: 'delivery');
-  final _apiKeyController = TextEditingController(text: 'your-api-key-here');
-
-  String _result = '';
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeNotifications();
-  }
-
-  Future<void> _initializeNotifications() async {
-    await _notificationService.initialize(
-      onNotificationTapped: _handleNotificationTap,
-    );
-    await _notificationService.requestPermissions();
-    await _storageService.initialize();
-  }
-
-  Future<void> _handleNotificationTap(String? payload) async {
-    if (payload == null) return;
-
-    final variantId = await _storageService.getVariantId(payload);
-    if (variantId == null) return;
-
-    try {
-      await _client.recordMetric(
-        PushBunnyMetricRequest(variantId: variantId, eventType: 'clicked'),
-      );
-      print('Recorded "clicked" metric for variant: $variantId');
-    } on PushBunnyException catch (e) {
-      print('Failed to record clicked metric: ${e.message}');
-    }
-  }
-
-  @override
-  void dispose() {
-    _baseMessageController.dispose();
-    _contextController.dispose();
-    _apiKeyController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _generateNotification() async {
-    setState(() {
-      _isLoading = true;
-      _result = '';
-    });
-
-    try {
-      final request = PushBunnyNotificationRequest(
-        baseMessage: _baseMessageController.text,
-        context: _contextController.text,
-        apiKey: _apiKeyController.text,
-        locale: 'en-US',
-      );
-
-      final response = await _client.generateNotification(request);
-
-      await _storageService.saveNotification(
-        resolvedMessage: response.resolvedMessage,
-        variantId: response.variantId,
-      );
-
-      await _notificationService.showNotification(
-        title: 'PushBunny',
-        body: response.resolvedMessage,
-        payload: response.resolvedMessage,
-      );
-
-      try {
-        await _client.recordMetric(
-          PushBunnyMetricRequest(
-            variantId: response.variantId,
-            eventType: 'sent',
-          ),
-        );
-        print('Recorded "sent" metric for variant: ${response.variantId}');
-      } on PushBunnyException catch (e) {
-        print('Failed to record sent metric: ${e.message}');
-      }
-
-      setState(() {
-        _result =
-            'Success!\n\n'
-            'Notification Sent!\n\n'
-            'Optimized Message:\n${response.resolvedMessage}\n\n'
-            'Variant ID: ${response.variantId}';
-        _isLoading = false;
-      });
-    } on PushBunnyException catch (e) {
-      setState(() {
-        _result = 'Error: ${e.message}\nCode: ${e.code}';
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _result = 'Unexpected error: $e';
-        _isLoading = false;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('PushBunny Example')),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Generate & Send Local Notification',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _baseMessageController,
-                decoration: const InputDecoration(
-                  labelText: 'Base Message',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _contextController,
-                decoration: const InputDecoration(
-                  labelText: 'Context',
-                  border: OutlineInputBorder(),
-                  hintText: 'e.g., delivery, messaging, social',
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _apiKeyController,
-                decoration: const InputDecoration(
-                  labelText: 'API Key',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _generateNotification,
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Send Notification'),
-              ),
-              const SizedBox(height: 24),
-              if (_result.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: _result.startsWith('Success')
-                        ? Colors.green.shade50
-                        : Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: _result.startsWith('Success')
-                          ? Colors.green
-                          : Colors.red,
-                    ),
-                  ),
-                  child: Text(_result, style: const TextStyle(fontSize: 14)),
-                ),
-            ],
-          ),
-        ),
+      title: 'PushBunny',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.amber),
+        useMaterial3: true,
       ),
+      home: const NotificationScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
