@@ -17,31 +17,25 @@ import network.HttpClientProvider
  * @param text The base notification text
  * @param context The context for the notification (e.g., "e-commerce", "delivery")
  * @param shouldTranslate Whether the notification should be translated
- * @return The generated notification body string, or an error message if the request fails
+ * @return The NotificationResponse containing the notification body and variant ID
+ * @throws Exception if the request fails (network error, server error, parsing error, etc.)
  */
 suspend fun generateNotificationBody(
     text: String,
     context: String,
     shouldTranslate: Boolean
-): String {
-    return try {
-        val response = HttpClientProvider.client.post(
-            "${ApiConstants.BASE_URL}${ApiConstants.GENERATE_ENDPOINT}"
-        ) {
-            contentType(ContentType.Application.Json)
-            setBody(
-                NotificationRequest(
-                    text = text,
-                    context = context,
-                    shouldTranslate = shouldTranslate
-                )
+): NotificationResponse {
+    return HttpClientProvider.client.post(
+        "${ApiConstants.BASE_URL}${ApiConstants.GENERATE_ENDPOINT}"
+    ) {
+        contentType(ContentType.Application.Json)
+        setBody(
+            NotificationRequest(
+                text = text,
+                context = context,
+                shouldTranslate = shouldTranslate
             )
-        }.body<NotificationResponse>()
-
-        response.notificationBody
-
-    } catch (e: Exception) {
-        "Error generating notification: ${e.message ?: "Unknown error"}"
-    }
+        )
+    }.body<NotificationResponse>()
 }
 
