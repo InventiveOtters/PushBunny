@@ -39,7 +39,26 @@ export default function Landing() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-6"
             >
+              <a 
+                href="#features"
+                className="text-white hover:text-accent-coral transition-colors font-medium"
+              >
+                Features
+              </a>
+              <a 
+                href="#integration"
+                className="text-white hover:text-accent-coral transition-colors font-medium"
+              >
+                Integration
+              </a>
+              <a 
+                href="#contact"
+                className="text-white hover:text-accent-coral transition-colors font-medium"
+              >
+                Contact
+              </a>
               <Link 
                 to="/dashboard"
                 className="px-6 py-2.5 glass glass-hover rounded-xl font-medium transition-all"
@@ -119,9 +138,6 @@ export default function Landing() {
         <NotificationShowcase />
       </div>
 
-      {/* Integration Showcase Section */}
-      <IntegrationShowcase />
-
       {/* Features Section with White Background */}
       <div id="features" className="bg-gray-50 py-32">
         <div className="max-w-7xl mx-auto px-6">
@@ -169,6 +185,139 @@ export default function Landing() {
           </motion.div>
         </div>
       </div>
+
+      {/* Integration Showcase Section */}
+      <div id="integration">
+        <IntegrationShowcase />
+      </div>
+
+      {/* Contact Us Section */}
+      <div id="contact" className="bg-gray-50 py-32">
+        <div className="max-w-4xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-5xl md:text-6xl font-bold mb-4 text-gray-900">
+              Get in <span className="text-accent-coral">Touch</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Ready to supercharge your notifications? We'd love to hear from you.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-3xl shadow-xl p-8 md:p-12 border border-gray-200"
+          >
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Contact Info */}
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Let's Connect</h3>
+                  <p className="text-gray-600 mb-6">
+                    Have questions about PushBunny? Want to see a demo? 
+                    Our team is here to help you get started.
+                  </p>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-accent-coral/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="text-accent-coral text-xl">📧</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">Email</p>
+                      <p className="text-gray-600">support@inotter.com</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-accent-coral/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="text-accent-coral text-xl">💬</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">Live Chat</p>
+                      <p className="text-gray-600">Available 9am-5pm EST</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-accent-coral/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="text-accent-coral text-xl">📚</span>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">Documentation</p>
+                      <p className="text-gray-600">Comprehensive guides & API docs</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="flex flex-col justify-center">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border border-gray-200">
+                  <h4 className="text-xl font-bold text-gray-900 mb-3">
+                    Ready to Start?
+                  </h4>
+                  <p className="text-gray-600 mb-6">
+                    Create your account and start sending intelligent notifications in minutes.
+                  </p>
+                  <Link
+                    to="/dashboard"
+                    className="block w-full py-4 bg-accent-coral hover:bg-accent-coral/90 rounded-xl font-semibold text-center transition-all hover:shadow-xl hover:shadow-accent-coral/30 text-white"
+                  >
+                    Get Started Free
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <img 
+                src="/logo.png" 
+                alt="PushBunny Logo" 
+                className="w-8 h-8 object-contain"
+              />
+              <span className="text-xl font-bold">
+                <span className="text-accent-coral">Push</span>
+                <span className="text-white">Bunny</span>
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-8">
+              <a href="#features" className="hover:text-accent-coral transition-colors">
+                Features
+              </a>
+              <a href="#integration" className="hover:text-accent-coral transition-colors">
+                Integration
+              </a>
+              <a href="#contact" className="hover:text-accent-coral transition-colors">
+                Contact
+              </a>
+              <Link to="/dashboard" className="hover:text-accent-coral transition-colors">
+                Dashboard
+              </Link>
+            </div>
+          </div>
+          
+          <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
+            <p>© Copyright 2025 Inventive Otters. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

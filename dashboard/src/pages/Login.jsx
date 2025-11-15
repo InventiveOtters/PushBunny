@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -10,8 +10,15 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const { login } = useAuth()
+  const { login, isAuthenticated } = useAuth()
   const navigate = useNavigate()
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -21,10 +28,12 @@ export default function Login() {
     try {
       const data = await apiLogin(email, password)
       login(data.api_key)
-      navigate('/dashboard')
+      // Use replace to avoid adding to history and delay slightly to ensure state update
+      setTimeout(() => {
+        navigate('/dashboard', { replace: true })
+      }, 100)
     } catch (err) {
       setError('Invalid credentials. Please try again.')
-    } finally {
       setLoading(false)
     }
   }
