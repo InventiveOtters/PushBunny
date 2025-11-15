@@ -49,4 +49,3 @@ suspend fun generateNotificationBody(
         )
     }.body<NotificationResponse>()
 }
-

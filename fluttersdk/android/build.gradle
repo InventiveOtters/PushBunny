@@ -48,8 +48,16 @@ android {
     }
 
     dependencies {
-        // Kotlin SDK dependency (local project)
-        implementation(project(':sdk:library'))
+        // Kotlin SDK dependency (bundled AAR)
+        implementation(files('libs/library.aar'))
+
+        // Transitive dependencies required by the bundled KMPP SDK
+        implementation("io.ktor:ktor-client-core:2.3.12")
+        implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
+        implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+        implementation("io.ktor:ktor-client-okhttp:2.3.12")
+        implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+        implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
 
         // Kotlin coroutines for async operations
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
