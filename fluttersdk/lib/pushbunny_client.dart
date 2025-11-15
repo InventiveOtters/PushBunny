@@ -1,13 +1,10 @@
 import 'package:flutter/services.dart';
 import 'pushbunny_pigeon.dart';
+import 'models.dart';
 
 /// Exception thrown when PushBunny operations fail.
 class PushBunnyException implements Exception {
-  PushBunnyException({
-    required this.code,
-    required this.message,
-    this.details,
-  });
+  PushBunnyException({required this.code, required this.message, this.details});
 
   /// Error code (e.g., "NOTIFICATION_ERROR", "NETWORK_ERROR")
   final String code;
@@ -58,34 +55,31 @@ class PushBunnyClient {
   /// the Kotlin SDK's generateNotificationBody function.
   ///
   /// Parameters:
-  /// - [baseMessage]: The fallback message if AI fails
-  /// - [context]: Additional context about the message (e.g., "delivery", "messaging")
-  /// - [apiKey]: The API key for authentication
-  /// - [intentId]: Optional intent identifier (will be generated if not provided)
-  /// - [locale]: User locale (defaults to "en-US")
+  /// - [request]: The notification request containing all required parameters
   ///
-  /// Returns a [NotificationResponse] containing:
+  /// Returns a [PushBunnyNotificationResponse] containing:
   /// - [resolvedMessage]: The optimized notification text
   /// - [variantId]: The variant ID used for A/B testing
   ///
   /// Throws [PushBunnyException] if the operation fails.
-  Future<NotificationResponse> generateNotification({
-    required String baseMessage,
-    required String context,
-    required String apiKey,
-    String? intentId,
-    String locale = 'en-US',
-  }) async {
+  Future<PushBunnyNotificationResponse> generateNotification(
+    PushBunnyNotificationRequest request,
+  ) async {
     try {
-      final request = NotificationRequest(
-        baseMessage: baseMessage,
-        context: context,
-        apiKey: apiKey,
-        intentId: intentId,
-        locale: locale,
+      final pigeonRequest = NotificationRequest(
+        baseMessage: request.baseMessage,
+        context: request.context,
+        apiKey: request.apiKey,
+        intentId: request.intentId,
+        locale: request.locale,
       );
 
-      return await _api.generateNotification(request);
+      final pigeonResponse = await _api.generateNotification(pigeonRequest);
+
+      return PushBunnyNotificationResponse(
+        variantId: pigeonResponse.variantId,
+        resolvedMessage: pigeonResponse.resolvedMessage,
+      );
     } on PlatformException catch (e) {
       throw PushBunnyException(
         code: e.code,
@@ -93,11 +87,7 @@ class PushBunnyClient {
         details: e.details?.toString(),
       );
     } catch (e) {
-      throw PushBunnyException(
-        code: 'UNKNOWN_ERROR',
-        message: e.toString(),
-      );
+      throw PushBunnyException(code: 'UNKNOWN_ERROR', message: e.toString());
     }
   }
 }
-

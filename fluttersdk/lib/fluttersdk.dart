@@ -5,4 +5,4 @@
 library;
 
 export 'pushbunny_client.dart';
-export 'pushbunny_pigeon.dart' show NotificationRequest, NotificationResponse;
+export 'models.dart';
