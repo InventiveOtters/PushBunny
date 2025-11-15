@@ -93,6 +93,66 @@ class NotificationResponse {
   }
 }
 
+/// Request data for recording a metric event.
+/// Maps to the Kotlin SDK's MetricRequest model.
+class MetricRequest {
+  MetricRequest({
+    required this.variantId,
+    required this.eventType,
+    this.timestamp,
+  });
+
+  /// The variant ID returned from generateNotificationBody
+  String variantId;
+
+  /// The type of event: "sent" or "clicked"
+  String eventType;
+
+  /// Optional ISO 8601 timestamp (defaults to current time if not provided)
+  String? timestamp;
+
+  Object encode() {
+    return <Object?>[
+      variantId,
+      eventType,
+      timestamp,
+    ];
+  }
+
+  static MetricRequest decode(Object result) {
+    result as List<Object?>;
+    return MetricRequest(
+      variantId: result[0]! as String,
+      eventType: result[1]! as String,
+      timestamp: result[2] as String?,
+    );
+  }
+}
+
+/// Response data from metric recording.
+/// Maps to the Kotlin SDK's MetricResponse model.
+class MetricResponse {
+  MetricResponse({
+    required this.status,
+  });
+
+  /// Status of the metric recording (typically "ok")
+  String status;
+
+  Object encode() {
+    return <Object?>[
+      status,
+    ];
+  }
+
+  static MetricResponse decode(Object result) {
+    result as List<Object?>;
+    return MetricResponse(
+      status: result[0]! as String,
+    );
+  }
+}
+
 /// Error information for PushBunny operations.
 class PushBunnyError {
   PushBunnyError({
@@ -142,8 +202,14 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is NotificationResponse) {
       buffer.putUint8(130);
       writeValue(buffer, value.encode());
-    }    else if (value is PushBunnyError) {
+    }    else if (value is MetricRequest) {
       buffer.putUint8(131);
+      writeValue(buffer, value.encode());
+    }    else if (value is MetricResponse) {
+      buffer.putUint8(132);
+      writeValue(buffer, value.encode());
+    }    else if (value is PushBunnyError) {
+      buffer.putUint8(133);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -158,6 +224,10 @@ class _PigeonCodec extends StandardMessageCodec {
       case 130: 
         return NotificationResponse.decode(readValue(buffer)!);
       case 131: 
+        return MetricRequest.decode(readValue(buffer)!);
+      case 132: 
+        return MetricResponse.decode(readValue(buffer)!);
+      case 133: 
         return PushBunnyError.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -210,6 +280,42 @@ class PushBunnyApi {
       );
     } else {
       return (pigeonVar_replyList[0] as NotificationResponse?)!;
+    }
+  }
+
+  /// Records a notification metric event to the PushBunny backend.
+  ///
+  /// This method tracks notification lifecycle events (sent, clicked) for A/B testing
+  /// and analytics purposes. The backend uses these metrics to determine which notification
+  /// variants perform best.
+  ///
+  /// This method calls the Kotlin SDK's recordMetric function.
+  ///
+  /// Throws a PlatformException on error with details from PushBunnyError.
+  Future<MetricResponse> recordMetric(MetricRequest request) async {
+    final String pigeonVar_channelName = 'dev.flutter.pigeon.fluttersdk.PushBunnyApi.recordMetric$pigeonVar_messageChannelSuffix';
+    final BasicMessageChannel<Object?> pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final List<Object?>? pigeonVar_replyList =
+        await pigeonVar_channel.send(<Object?>[request]) as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as MetricResponse?)!;
     }
   }
 }

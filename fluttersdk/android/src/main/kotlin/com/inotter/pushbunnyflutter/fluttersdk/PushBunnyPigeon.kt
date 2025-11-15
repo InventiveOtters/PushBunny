@@ -115,6 +115,62 @@ data class NotificationResponse (
 }
 
 /**
+ * Request data for recording a metric event.
+ * Maps to the Kotlin SDK's MetricRequest model.
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class MetricRequest (
+  /** The variant ID returned from generateNotificationBody */
+  val variantId: String,
+  /** The type of event: "sent" or "clicked" */
+  val eventType: String,
+  /** Optional ISO 8601 timestamp (defaults to current time if not provided) */
+  val timestamp: String? = null
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): MetricRequest {
+      val variantId = pigeonVar_list[0] as String
+      val eventType = pigeonVar_list[1] as String
+      val timestamp = pigeonVar_list[2] as String?
+      return MetricRequest(variantId, eventType, timestamp)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      variantId,
+      eventType,
+      timestamp,
+    )
+  }
+}
+
+/**
+ * Response data from metric recording.
+ * Maps to the Kotlin SDK's MetricResponse model.
+ *
+ * Generated class from Pigeon that represents data sent in messages.
+ */
+data class MetricResponse (
+  /** Status of the metric recording (typically "ok") */
+  val status: String
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): MetricResponse {
+      val status = pigeonVar_list[0] as String
+      return MetricResponse(status)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      status,
+    )
+  }
+}
+
+/**
  * Error information for PushBunny operations.
  *
  * Generated class from Pigeon that represents data sent in messages.
@@ -159,6 +215,16 @@ private open class PushBunnyPigeonPigeonCodec : StandardMessageCodec() {
       }
       131.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
+          MetricRequest.fromList(it)
+        }
+      }
+      132.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          MetricResponse.fromList(it)
+        }
+      }
+      133.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
           PushBunnyError.fromList(it)
         }
       }
@@ -175,8 +241,16 @@ private open class PushBunnyPigeonPigeonCodec : StandardMessageCodec() {
         stream.write(130)
         writeValue(stream, value.toList())
       }
-      is PushBunnyError -> {
+      is MetricRequest -> {
         stream.write(131)
+        writeValue(stream, value.toList())
+      }
+      is MetricResponse -> {
+        stream.write(132)
+        writeValue(stream, value.toList())
+      }
+      is PushBunnyError -> {
+        stream.write(133)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -201,6 +275,18 @@ interface PushBunnyApi {
    * Throws a PlatformException on error with details from PushBunnyError.
    */
   fun generateNotification(request: NotificationRequest, callback: (Result<NotificationResponse>) -> Unit)
+  /**
+   * Records a notification metric event to the PushBunny backend.
+   *
+   * This method tracks notification lifecycle events (sent, clicked) for A/B testing
+   * and analytics purposes. The backend uses these metrics to determine which notification
+   * variants perform best.
+   *
+   * This method calls the Kotlin SDK's recordMetric function.
+   *
+   * Throws a PlatformException on error with details from PushBunnyError.
+   */
+  fun recordMetric(request: MetricRequest, callback: (Result<MetricResponse>) -> Unit)
 
   companion object {
     /** The codec used by PushBunnyApi. */
@@ -218,6 +304,26 @@ interface PushBunnyApi {
             val args = message as List<Any?>
             val requestArg = args[0] as NotificationRequest
             api.generateNotification(requestArg) { result: Result<NotificationResponse> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(wrapError(error))
+              } else {
+                val data = result.getOrNull()
+                reply.reply(wrapResult(data))
+              }
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.fluttersdk.PushBunnyApi.recordMetric$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val requestArg = args[0] as MetricRequest
+            api.recordMetric(requestArg) { result: Result<MetricResponse> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(wrapError(error))

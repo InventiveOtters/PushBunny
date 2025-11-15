@@ -1,6 +1,7 @@
 package com.inotter.pushbunnyflutter.fluttersdk
 
 import api.generateNotificationBody
+import api.recordMetric
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +50,34 @@ class FluttersdkPlugin : FlutterPlugin, PushBunnyApi {
                 val error = FlutterError(
                     code = "NOTIFICATION_ERROR",
                     message = e.message ?: "Failed to generate notification",
+                    details = e.stackTraceToString()
+                )
+                callback(Result.failure(error))
+            }
+        }
+    }
+
+    override fun recordMetric(
+        request: com.inotter.pushbunnyflutter.fluttersdk.MetricRequest,
+        callback: (Result<com.inotter.pushbunnyflutter.fluttersdk.MetricResponse>) -> Unit
+    ) {
+        scope.launch {
+            try {
+                val response = recordMetric(
+                    variantId = request.variantId,
+                    eventType = request.eventType,
+                    timestamp = request.timestamp
+                )
+
+                val pigeonResponse = com.inotter.pushbunnyflutter.fluttersdk.MetricResponse(
+                    status = response.status
+                )
+
+                callback(Result.success(pigeonResponse))
+            } catch (e: Exception) {
+                val error = FlutterError(
+                    code = "METRIC_ERROR",
+                    message = e.message ?: "Failed to record metric",
                     details = e.stackTraceToString()
                 )
                 callback(Result.failure(error))

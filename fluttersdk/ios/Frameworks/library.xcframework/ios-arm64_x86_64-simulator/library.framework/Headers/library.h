@@ -6,9 +6,9 @@
 #import <Foundation/NSString.h>
 #import <Foundation/NSValue.h>
 
-@class LibraryKotlinArray<T>, LibraryKotlinNothing, LibraryKotlinThrowable, LibraryKotlinx_serialization_coreSerialKind, LibraryKotlinx_serialization_coreSerializersModule, LibraryNotificationResponse, LibraryNotificationResponseCompanion;
+@class LibraryKotlinArray<T>, LibraryKotlinEnum<E>, LibraryKotlinEnumCompanion, LibraryKotlinNothing, LibraryKotlinThrowable, LibraryKotlinx_serialization_coreSerialKind, LibraryKotlinx_serialization_coreSerializersModule, LibraryMetricEventType, LibraryMetricResponse, LibraryMetricResponseCompanion, LibraryNotificationResponse, LibraryNotificationResponseCompanion;
 
-@protocol LibraryKotlinAnnotation, LibraryKotlinIterator, LibraryKotlinKAnnotatedElement, LibraryKotlinKClass, LibraryKotlinKClassifier, LibraryKotlinKDeclarationContainer, LibraryKotlinx_serialization_coreCompositeDecoder, LibraryKotlinx_serialization_coreCompositeEncoder, LibraryKotlinx_serialization_coreDecoder, LibraryKotlinx_serialization_coreDeserializationStrategy, LibraryKotlinx_serialization_coreEncoder, LibraryKotlinx_serialization_coreKSerializer, LibraryKotlinx_serialization_coreSerialDescriptor, LibraryKotlinx_serialization_coreSerializationStrategy, LibraryKotlinx_serialization_coreSerializersModuleCollector;
+@protocol LibraryKotlinAnnotation, LibraryKotlinComparable, LibraryKotlinIterator, LibraryKotlinKAnnotatedElement, LibraryKotlinKClass, LibraryKotlinKClassifier, LibraryKotlinKDeclarationContainer, LibraryKotlinx_serialization_coreCompositeDecoder, LibraryKotlinx_serialization_coreCompositeEncoder, LibraryKotlinx_serialization_coreDecoder, LibraryKotlinx_serialization_coreDeserializationStrategy, LibraryKotlinx_serialization_coreEncoder, LibraryKotlinx_serialization_coreKSerializer, LibraryKotlinx_serialization_coreSerialDescriptor, LibraryKotlinx_serialization_coreSerializationStrategy, LibraryKotlinx_serialization_coreSerializersModuleCollector;
 
 NS_ASSUME_NONNULL_BEGIN
 #pragma clang diagnostic push
@@ -144,6 +144,113 @@ __attribute__((swift_name("KotlinBoolean")))
 + (instancetype)numberWithBool:(BOOL)value;
 @end
 
+__attribute__((swift_name("KotlinComparable")))
+@protocol LibraryKotlinComparable
+@required
+- (int32_t)compareToOther:(id _Nullable)other __attribute__((swift_name("compareTo(other:)")));
+@end
+
+__attribute__((swift_name("KotlinEnum")))
+@interface LibraryKotlinEnum<E> : LibraryBase <LibraryKotlinComparable>
+- (instancetype)initWithName:(NSString *)name ordinal:(int32_t)ordinal __attribute__((swift_name("init(name:ordinal:)"))) __attribute__((objc_designated_initializer));
+@property (class, readonly, getter=companion) LibraryKotlinEnumCompanion *companion __attribute__((swift_name("companion")));
+- (int32_t)compareToOther:(E)other __attribute__((swift_name("compareTo(other:)")));
+- (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
+- (NSUInteger)hash __attribute__((swift_name("hash()")));
+- (NSString *)description __attribute__((swift_name("description()")));
+@property (readonly) NSString *name __attribute__((swift_name("name")));
+@property (readonly) int32_t ordinal __attribute__((swift_name("ordinal")));
+@end
+
+
+/**
+ * Enum representing the types of metric events that can be recorded.
+ *
+ * These event types are used to track notification lifecycle:
+ * - SENT: Notification was sent to the user
+ * - CLICKED: User clicked/opened the notification
+ */
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("MetricEventType")))
+@interface LibraryMetricEventType : LibraryKotlinEnum<LibraryMetricEventType *>
++ (instancetype)alloc __attribute__((unavailable));
+
+/**
+ * Enum representing the types of metric events that can be recorded.
+ *
+ * These event types are used to track notification lifecycle:
+ * - SENT: Notification was sent to the user
+ * - CLICKED: User clicked/opened the notification
+ */
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
+- (instancetype)initWithName:(NSString *)name ordinal:(int32_t)ordinal __attribute__((swift_name("init(name:ordinal:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
+@property (class, readonly) LibraryMetricEventType *sent __attribute__((swift_name("sent")));
+@property (class, readonly) LibraryMetricEventType *clicked __attribute__((swift_name("clicked")));
++ (LibraryKotlinArray<LibraryMetricEventType *> *)values __attribute__((swift_name("values()")));
+@property (class, readonly) NSArray<LibraryMetricEventType *> *entries __attribute__((swift_name("entries")));
+@property (readonly) NSString *value __attribute__((swift_name("value")));
+@end
+
+
+/**
+ * Response model for metric recording.
+ * Returned by the backend after successfully recording a metric.
+ *
+ * @note annotations
+ *   kotlinx.serialization.Serializable
+*/
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("MetricResponse")))
+@interface LibraryMetricResponse : LibraryBase
+- (instancetype)initWithStatus:(NSString *)status __attribute__((swift_name("init(status:)"))) __attribute__((objc_designated_initializer));
+@property (class, readonly, getter=companion) LibraryMetricResponseCompanion *companion __attribute__((swift_name("companion")));
+- (LibraryMetricResponse *)doCopyStatus:(NSString *)status __attribute__((swift_name("doCopy(status:)")));
+
+/**
+ * Response model for metric recording.
+ * Returned by the backend after successfully recording a metric.
+ */
+- (BOOL)isEqual:(id _Nullable)other __attribute__((swift_name("isEqual(_:)")));
+
+/**
+ * Response model for metric recording.
+ * Returned by the backend after successfully recording a metric.
+ */
+- (NSUInteger)hash __attribute__((swift_name("hash()")));
+
+/**
+ * Response model for metric recording.
+ * Returned by the backend after successfully recording a metric.
+ */
+- (NSString *)description __attribute__((swift_name("description()")));
+@property (readonly) NSString *status __attribute__((swift_name("status")));
+@end
+
+
+/**
+ * Response model for metric recording.
+ * Returned by the backend after successfully recording a metric.
+ */
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("MetricResponse.Companion")))
+@interface LibraryMetricResponseCompanion : LibraryBase
++ (instancetype)alloc __attribute__((unavailable));
+
+/**
+ * Response model for metric recording.
+ * Returned by the backend after successfully recording a metric.
+ */
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
++ (instancetype)companion __attribute__((swift_name("init()")));
+@property (class, readonly, getter=shared) LibraryMetricResponseCompanion *shared __attribute__((swift_name("shared")));
+
+/**
+ * Response model for metric recording.
+ * Returned by the backend after successfully recording a metric.
+ */
+- (id<LibraryKotlinx_serialization_coreKSerializer>)serializer __attribute__((swift_name("serializer()")));
+@end
+
 
 /**
  * @note annotations
@@ -183,6 +290,46 @@ __attribute__((swift_name("NotificationResponse.Companion")))
 @end
 
 __attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("MetricsApiKt")))
+@interface LibraryMetricsApiKt : LibraryBase
+
+/**
+ * Records a notification metric event to the PushBunny backend.
+ *
+ * This function tracks notification lifecycle events (sent, clicked) for A/B testing
+ * and analytics purposes. The backend uses these metrics to determine which notification
+ * variants perform best.
+ *
+ * @param variantId The variant ID returned from generateNotificationBody
+ * @param eventType The type of event (use MetricEventType.SENT or MetricEventType.CLICKED)
+ * @param timestamp Optional ISO 8601 timestamp (defaults to current time)
+ * @return MetricResponse with status "ok" if successful
+ * @throws IllegalArgumentException if eventType is not "sent" or "clicked"
+ * @throws Exception if the request fails (network error, server error, etc.)
+ *
+ * @sample
+ * ```kotlin
+ * // Record a "sent" metric
+ * val response = recordMetric(
+ *     variantId = "a2f3c523-9240-4013-8e86-acf2600c6129",
+ *     eventType = MetricEventType.SENT.value
+ * )
+ *
+ * // Record a "clicked" metric with custom timestamp
+ * val response = recordMetric(
+ *     variantId = "a2f3c523-9240-4013-8e86-acf2600c6129",
+ *     eventType = MetricEventType.CLICKED.value,
+ *     timestamp = "2025-02-15T12:01:12Z"
+ * )
+ * ```
+ *
+ * @note This method converts instances of Exception to errors.
+ * Other uncaught Kotlin exceptions are fatal.
+*/
++ (void)recordMetricVariantId:(NSString *)variantId eventType:(NSString *)eventType timestamp:(NSString * _Nullable)timestamp completionHandler:(void (^)(LibraryMetricResponse * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("recordMetric(variantId:eventType:timestamp:completionHandler:)")));
+@end
+
+__attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("NotificationApiKt")))
 @interface LibraryNotificationApiKt : LibraryBase
 
@@ -204,6 +351,27 @@ __attribute__((swift_name("NotificationApiKt")))
  * Other uncaught Kotlin exceptions are fatal.
 */
 + (void)generateNotificationBodyBaseMessage:(NSString *)baseMessage context:(NSString *)context apiKey:(NSString *)apiKey intentId:(NSString * _Nullable)intentId locale:(NSString *)locale completionHandler:(void (^)(LibraryNotificationResponse * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("generateNotificationBody(baseMessage:context:apiKey:intentId:locale:completionHandler:)")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("KotlinEnumCompanion")))
+@interface LibraryKotlinEnumCompanion : LibraryBase
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
++ (instancetype)companion __attribute__((swift_name("init()")));
+@property (class, readonly, getter=shared) LibraryKotlinEnumCompanion *shared __attribute__((swift_name("shared")));
+@end
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("KotlinArray")))
+@interface LibraryKotlinArray<T> : LibraryBase
++ (instancetype)arrayWithSize:(int32_t)size init:(T _Nullable (^)(LibraryInt *))init __attribute__((swift_name("init(size:init:)")));
++ (instancetype)alloc __attribute__((unavailable));
++ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
+- (T _Nullable)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
+- (id<LibraryKotlinIterator>)iterator __attribute__((swift_name("iterator()")));
+- (void)setIndex:(int32_t)index value:(T _Nullable)value __attribute__((swift_name("set(index:value:)")));
+@property (readonly) int32_t size __attribute__((swift_name("size")));
 @end
 
 __attribute__((swift_name("Kotlinx_serialization_coreSerializationStrategy")))
@@ -252,6 +420,13 @@ __attribute__((swift_name("KotlinException")))
 - (instancetype)initWithMessage:(NSString * _Nullable)message __attribute__((swift_name("init(message:)"))) __attribute__((objc_designated_initializer));
 - (instancetype)initWithCause:(LibraryKotlinThrowable * _Nullable)cause __attribute__((swift_name("init(cause:)"))) __attribute__((objc_designated_initializer));
 - (instancetype)initWithMessage:(NSString * _Nullable)message cause:(LibraryKotlinThrowable * _Nullable)cause __attribute__((swift_name("init(message:cause:)"))) __attribute__((objc_designated_initializer));
+@end
+
+__attribute__((swift_name("KotlinIterator")))
+@protocol LibraryKotlinIterator
+@required
+- (BOOL)hasNext __attribute__((swift_name("hasNext()")));
+- (id _Nullable)next __attribute__((swift_name("next()")));
 @end
 
 __attribute__((swift_name("Kotlinx_serialization_coreEncoder")))
@@ -395,18 +570,6 @@ __attribute__((swift_name("Kotlinx_serialization_coreDecoder")))
 @property (readonly) LibraryKotlinx_serialization_coreSerializersModule *serializersModule __attribute__((swift_name("serializersModule")));
 @end
 
-__attribute__((objc_subclassing_restricted))
-__attribute__((swift_name("KotlinArray")))
-@interface LibraryKotlinArray<T> : LibraryBase
-+ (instancetype)arrayWithSize:(int32_t)size init:(T _Nullable (^)(LibraryInt *))init __attribute__((swift_name("init(size:init:)")));
-+ (instancetype)alloc __attribute__((unavailable));
-+ (instancetype)allocWithZone:(struct _NSZone *)zone __attribute__((unavailable));
-- (T _Nullable)getIndex:(int32_t)index __attribute__((swift_name("get(index:)")));
-- (id<LibraryKotlinIterator>)iterator __attribute__((swift_name("iterator()")));
-- (void)setIndex:(int32_t)index value:(T _Nullable)value __attribute__((swift_name("set(index:value:)")));
-@property (readonly) int32_t size __attribute__((swift_name("size")));
-@end
-
 __attribute__((swift_name("Kotlinx_serialization_coreCompositeEncoder")))
 @protocol LibraryKotlinx_serialization_coreCompositeEncoder
 @required
@@ -516,13 +679,6 @@ __attribute__((swift_name("Kotlinx_serialization_coreCompositeDecoder")))
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("KotlinNothing")))
 @interface LibraryKotlinNothing : LibraryBase
-@end
-
-__attribute__((swift_name("KotlinIterator")))
-@protocol LibraryKotlinIterator
-@required
-- (BOOL)hasNext __attribute__((swift_name("hasNext()")));
-- (id _Nullable)next __attribute__((swift_name("next()")));
 @end
 
 

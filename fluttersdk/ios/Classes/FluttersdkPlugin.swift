@@ -38,4 +38,32 @@ public class FluttersdkPlugin: NSObject, FlutterPlugin, PushBunnyApi {
       }
     }
   }
+
+  func recordMetric(
+    request: MetricRequest,
+    completion: @escaping (Result<MetricResponse, Error>) -> Void
+  ) {
+    Task {
+      do {
+        let response = try await MetricsApiKt.recordMetric(
+          variantId: request.variantId,
+          eventType: request.eventType,
+          timestamp: request.timestamp
+        )
+
+        let pigeonResponse = MetricResponse(
+          status: response.status
+        )
+
+        completion(.success(pigeonResponse))
+      } catch {
+        let pigeonError = PigeonError(
+          code: "METRIC_ERROR",
+          message: error.localizedDescription,
+          details: "\(error)"
+        )
+        completion(.failure(pigeonError))
+      }
+    }
+  }
 }

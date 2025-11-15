@@ -43,3 +43,29 @@ class PushBunnyNotificationResponse {
   /// The optimized notification message
   final String resolvedMessage;
 }
+
+/// Request data for recording a metric event.
+class PushBunnyMetricRequest {
+  const PushBunnyMetricRequest({
+    required this.variantId,
+    required this.eventType,
+    this.timestamp,
+  });
+
+  /// The variant ID returned from generateNotification
+  final String variantId;
+
+  /// The type of event: "sent" or "clicked"
+  final String eventType;
+
+  /// Optional ISO 8601 timestamp (defaults to current time if not provided)
+  final String? timestamp;
+}
+
+/// Response data from metric recording.
+class PushBunnyMetricResponse {
+  const PushBunnyMetricResponse({required this.status});
+
+  /// Status of the metric recording (typically "ok")
+  final String status;
+}
