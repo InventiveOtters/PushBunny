@@ -1,10 +1,13 @@
 package models
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class NotificationResponse(
-    val notificationBody: String,
-    val variantId: String
+    @SerialName("variant_id")
+    val variantId: String,
+    @SerialName("resolved_message")
+    val resolvedMessage: String
 )
 
