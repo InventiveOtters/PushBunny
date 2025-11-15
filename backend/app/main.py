@@ -1,45 +1,83 @@
-"""FastAPI application entry point."""
+"""
+PushBunny Backend - FastAPI entrypoint.
+Main application setup and router registration.
+"""
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import logging
+from contextlib import asynccontextmanager
 
-from app.config import settings
-from app.api.v1.router import api_router
+from .config import get_settings
+from .database import init_db
+from .routers import resolve, metrics, variants, auth
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+settings = get_settings()
 
 
-def create_application() -> FastAPI:
-    """Create and configure the FastAPI application."""
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan handler."""
+    # Startup
+    logger.info("Starting PushBunny Backend...")
+    logger.info("Initializing database...")
+    init_db()
+    logger.info("Database initialized successfully")
     
-    app = FastAPI(
-        title=settings.PROJECT_NAME,
-        version="0.1.0",
-        openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
-        docs_url=f"{settings.API_V1_PREFIX}/docs",
-    )
+    yield
     
-    # CORS middleware
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],  # Configure appropriately for production
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-    
-    # Include API router
-    app.include_router(api_router, prefix=settings.API_V1_PREFIX)
-    
-    return app
+    # Shutdown
+    logger.info("Shutting down PushBunny Backend...")
 
 
-app = create_application()
+# Create FastAPI app
+app = FastAPI(
+    title=settings.app_name,
+    version=settings.app_version,
+    description="AI-optimized push notification backend powered by n8n and Gemini",
+    lifespan=lifespan
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Register routers
+app.include_router(resolve.router)
+app.include_router(metrics.router)
+app.include_router(variants.router)
+app.include_router(auth.router)
+
+
+@app.get("/")
+def root():
+    """Root endpoint - health check."""
+    return {
+        "name": settings.app_name,
+        "version": settings.app_version,
+        "status": "operational",
+        "message": "🐰 PushBunny Backend is running!"
+    }
 
 
 @app.get("/health")
-async def health_check():
+def health():
     """Health check endpoint."""
-    return {
-        "status": "healthy",
-        "service": "pushbunny-backend",
-        "environment": settings.ENVIRONMENT
-    }
+    return {"status": "healthy"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080)

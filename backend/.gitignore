@@ -23,7 +23,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# Environment
+# Environment variables
 .env
 .env.local
 
@@ -39,9 +39,9 @@ wheels/
 .coverage
 htmlcov/
 
+# Logs
+*.log
+
 # Database
 *.db
 *.sqlite
-
-# Logs
-*.log

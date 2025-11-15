@@ -1,334 +1,452 @@
-# PushBunny Backend
+# 🐰 PushBunny Backend
 
-FastAPI backend service for PushBunny - AI-powered push notification optimization platform.
+AI-optimized push notification backend powered by **FastAPI**, **n8n**, and **Gemini**.
 
-## Overview
+PushBunny receives notification intents from the SDK, forwards them to n8n for AI processing, stores generated variants and metrics, and returns the best current message for each user.
 
-PushBunny lets you hand off push notification copywriting and A/B testing to an AI. Instead of writing a final message string, you send a "notification intent" with context, and PushBunny returns the best-performing message for that user.
+## 🚀 Features
 
-## Features
+- ✨ Lightweight FastAPI server
+- 🤖 `/v1/resolve` → Returns optimized message for a given intent
+- 📊 `/v1/metrics` → Logs opens/clicks to feed the experiment loop
+- 🔄 Integrates with **n8n** workflow orchestrator calling **Gemini**
+- 💾 Stores variants and metrics in **Cloud SQL (Postgres)**
+- 🔐 Optional login & API keys
+- ☁️ Ready for **GCP Cloud Run** deployment
 
-- **REST API** with three main endpoints:
-  - `POST /v1/message` - Generate/select optimized notification text
-  - `POST /v1/events` - Track notification opens and conversions
-  - `GET /v1/stats` - Retrieve performance analytics
-- **LLM Integration** using Google Gemini for variant generation
-- **A/B Testing** with round-robin variant selection
-- **MySQL Database** for experiment tracking and analytics
-- **Docker Support** for easy deployment
+---
 
-## Tech Stack
-
-- **Framework:** FastAPI
-- **Database:** MySQL with SQLAlchemy ORM
-- **LLM:** Google Gemini API
-- **Migrations:** Alembic
-- **Testing:** Pytest
-- **Containerization:** Docker & Docker Compose
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 backend/
+│
 ├── app/
-│   ├── api/v1/          # API endpoints
-│   ├── core/            # Security and exceptions
-│   ├── db/              # Database configuration
-│   ├── models/          # SQLAlchemy models
-│   ├── schemas/         # Pydantic schemas
-│   ├── services/        # Business logic
-│   └── utils/           # Utilities
-├── alembic/             # Database migrations
-├── tests/               # Test suite
-├── Dockerfile           # Container definition
-├── docker-compose.yml   # Local dev setup
-└── requirements.txt     # Python dependencies
+│   ├── main.py              # FastAPI entrypoint
+│   ├── config.py            # Environment vars, DB config
+│   ├── database.py          # SQLAlchemy session + engine
+│   ├── models.py            # ORM models: Variant, Metric, ApiKey
+│   ├── schemas.py           # Pydantic request/response schemas
+│   ├── routers/
+│   │   ├── resolve.py       # /v1/resolve endpoint
+│   │   ├── metrics.py       # /v1/metrics endpoint
+│   │   ├── variants.py      # /v1/variants endpoint
+│   │   └── auth.py          # /v1/auth endpoint
+│   └── services/
+│       ├── n8n_client.py    # n8n workflow client
+│       └── variant_logic.py # Variant selection logic
+│
+├── requirements.txt         # Python dependencies
+├── Dockerfile               # Container image definition
+├── docker-compose.yml       # Local development setup
+├── cloudrun.yaml            # Cloud Run service config
+├── .env.example             # Environment variables template
+└── README.md                # This file
 ```
 
-## Quick Start
+---
+
+## 🌐 API Endpoints
+
+### **POST `/v1/resolve`**
+
+Returns an optimized message for the given intent + user.
+
+**Request:**
+```json
+{
+  "api_key": "optional-string",
+  "intent_id": "cart_abandon",
+  "locale": "en-US",
+  "context": "Product: Noise-Canceling Headphones, Price: $199.99",
+  "base_message": "You left something in your cart!"
+}
+```
+
+**Response:**
+```json
+{
+  "variant_id": "v_89327",
+  "resolved_message": "Still thinking it over? Your headphones are waiting for you 🎧"
+}
+```
+
+### **POST `/v1/metrics`**
+
+Stores reactions to messages (sent, opened, clicked).
+
+**Request:**
+```json
+{
+  "user_id": "user_123",
+  "intent_id": "cart_abandon",
+  "variant_id": "v_89327",
+  "event_type": "opened",
+  "timestamp": "2025-02-15T12:01:12Z"
+}
+```
+
+**Response:**
+```json
+{
+  "status": "ok"
+}
+```
+
+### **POST `/v1/auth/login`**
+
+Returns an API key for dashboard/backend access.
+
+**Request:**
+```json
+{
+  "email": "test@example.com",
+  "password": "mypassword"
+}
+```
+
+**Response:**
+```json
+{
+  "api_key": "pbk_live_123456"
+}
+```
+
+### **GET `/v1/variants/{intent_id}`**
+
+Returns all generated variants + metrics summary for dashboard.
+
+**Response:**
+```json
+[
+  {
+    "variant_id": "v_1",
+    "message": "Still thinking about your item?",
+    "sent": 120,
+    "opened": 23,
+    "clicked": 4
+  },
+  {
+    "variant_id": "v_2",
+    "message": "Your headphones are waiting 🎧",
+    "sent": 98,
+    "opened": 31,
+    "clicked": 9
+  }
+]
+```
+
+---
+
+## 🗃️ Database Schema
+
+### **Table: variants**
+
+| Column     | Type      | Notes                |
+|------------|-----------|----------------------|
+| id (PK)    | UUID      | Variant ID           |
+| intent_id  | TEXT      | From the SDK         |
+| message    | TEXT      | AI-generated copy    |
+| locale     | TEXT      | e.g. `en-US`         |
+| created_at | TIMESTAMP |                      |
+
+### **Table: metrics**
+
+| Column      | Type      | Notes                      |
+|-------------|-----------|----------------------------|
+| id (PK)     | UUID      |                            |
+| user_id     | TEXT      |                            |
+| intent_id   | TEXT      |                            |
+| variant_id  | UUID (FK) | References `variants.id`   |
+| event_type  | TEXT      | sent/opened/clicked        |
+| timestamp   | TIMESTAMP |                            |
+
+### **Table: api_keys**
+
+| Column     | Type | Notes |
+|------------|------|-------|
+| id (PK)    | UUID |       |
+| key        | TEXT |       |
+| owner      | TEXT |       |
+| created_at | TIMESTAMP |   |
+
+---
+
+## 🛠️ Local Development
 
 ### Prerequisites
 
 - Python 3.11+
-- MySQL 8.0+ (or use Docker Compose)
-- Google Gemini API key
+- Docker & Docker Compose (recommended)
+- PostgreSQL (if not using Docker)
 
-### Local Development
+### Setup with Docker Compose (Recommended)
 
-1. **Clone the repository:**
+1. **Clone the repository and navigate to backend:**
    ```bash
-   cd PushBunny/backend
+   cd backend
    ```
 
-2. **Create and activate virtual environment:**
+2. **Create environment file:**
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Start the services:**
+   ```bash
+   docker-compose up
+   ```
+
+4. **Access the API:**
+   - API: http://localhost:8080
+   - Docs: http://localhost:8080/docs
+   - Database: localhost:5432
+
+### Manual Setup
+
+1. **Create virtual environment:**
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. **Install dependencies:**
+2. **Install dependencies:**
    ```bash
-   pip install -r requirements-dev.txt
+   pip install -r requirements.txt
    ```
 
-4. **Set up environment variables:**
+3. **Set up PostgreSQL:**
+   ```bash
+   createdb pushbunny
+   ```
+
+4. **Configure environment:**
    ```bash
    cp .env.example .env
-   # Edit .env with your credentials
+   # Edit .env with your database credentials
    ```
 
-5. **Run with Docker Compose (recommended):**
+5. **Run the server:**
    ```bash
-   docker-compose up
-   ```
-   This starts both MySQL and the FastAPI backend.
-
-6. **Or run locally (requires MySQL running):**
-   ```bash
-   # Run migrations
-   alembic upgrade head
-   
-   # Start the server
-   uvicorn app.main:app --reload --port 8000
+   uvicorn app.main:app --reload
    ```
 
-7. **Access the API:**
-   - API Docs: http://localhost:8000/v1/docs
-   - Health Check: http://localhost:8000/health
+---
 
-## Environment Variables
+## 🐳 Docker Deployment
 
-Create a `.env` file in the backend directory:
-
-```env
-# Database
-DATABASE_URL=mysql+pymysql://pushbunny_user:secure_password@localhost:3306/pushbunny
-
-# API Keys (comma-separated)
-API_KEYS=pb_test_key_12345,pb_prod_key_67890
-
-# Gemini
-GEMINI_API_KEY=your_gemini_api_key_here
-GEMINI_MODEL=gemini-1.5-flash
-
-# Application
-ENVIRONMENT=development
-LOG_LEVEL=INFO
-```
-
-## API Usage
-
-### Authentication
-
-All API endpoints require authentication via Bearer token in the `Authorization` header:
+### Build Image
 
 ```bash
-curl -H "Authorization: Bearer pb_test_key_12345" \
-     http://localhost:8000/v1/message
+docker build -t pushbunny-backend .
 ```
 
-### Generate Message
+### Run Container
 
 ```bash
-curl -X POST http://localhost:8000/v1/message \
-  -H "Authorization: Bearer pb_test_key_12345" \
+docker run -p 8080:8080 \
+  -e DATABASE_URL=postgresql://user:pass@host:5432/pushbunny \
+  -e N8N_URL=https://your-n8n.com/webhook/resolve \
+  -e API_KEY_SECRET=your-secret \
+  pushbunny-backend
+```
+
+---
+
+## ☁️ GCP Cloud Run Deployment
+
+### 1. Set up GCP Project
+
+```bash
+export PROJECT_ID=your-project-id
+export REGION=europe-west1
+
+gcloud config set project $PROJECT_ID
+```
+
+### 2. Create Cloud SQL Instance
+
+```bash
+gcloud sql instances create pushbunny-db \
+  --database-version=POSTGRES_15 \
+  --tier=db-f1-micro \
+  --region=$REGION
+
+# Create database
+gcloud sql databases create pushbunny --instance=pushbunny-db
+
+# Create user
+gcloud sql users create pushbunny \
+  --instance=pushbunny-db \
+  --password=YOUR_SECURE_PASSWORD
+```
+
+### 3. Build and Push to Artifact Registry
+
+```bash
+# Enable Artifact Registry
+gcloud services enable artifactregistry.googleapis.com
+
+# Create repository
+gcloud artifacts repositories create pushbunny \
+  --repository-format=docker \
+  --location=$REGION
+
+# Build and push
+gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/pushbunny/backend
+```
+
+### 4. Deploy to Cloud Run
+
+```bash
+gcloud run deploy pushbunny-backend \
+  --image $REGION-docker.pkg.dev/$PROJECT_ID/pushbunny/backend \
+  --platform managed \
+  --region $REGION \
+  --allow-unauthenticated \
+  --add-cloudsql-instances $PROJECT_ID:$REGION:pushbunny-db \
+  --set-env-vars DATABASE_URL="postgresql://pushbunny:PASSWORD@/pushbunny?host=/cloudsql/$PROJECT_ID:$REGION:pushbunny-db" \
+  --set-env-vars N8N_URL="https://your-n8n.com/webhook/resolve" \
+  --set-env-vars API_KEY_SECRET="your-production-secret" \
+  --max-instances 10 \
+  --memory 512Mi
+```
+
+### 5. Get Service URL
+
+```bash
+gcloud run services describe pushbunny-backend \
+  --region $REGION \
+  --format 'value(status.url)'
+```
+
+---
+
+## 🔄 n8n Integration
+
+The backend communicates with n8n via webhook. The n8n workflow should:
+
+1. Receive POST request at `/webhook/resolve`
+2. Process with Gemini to generate/select variant
+3. Return JSON response:
+
+```json
+{
+  "variant_message": "AI generated text",
+  "should_store_variant": true
+}
+```
+
+### n8n Workflow Setup
+
+1. Create webhook trigger node
+2. Add Gemini/OpenAI node for text generation
+3. Add function node for response formatting
+4. Return structured response
+
+---
+
+## 🧪 Testing
+
+### Run API Tests
+
+```bash
+# Using httpie
+http POST localhost:8080/v1/resolve \
+  intent_id="cart_abandon" \
+  user_id="test_user" \
+  locale="en-US" \
+  base_message="Test message"
+
+# Using curl
+curl -X POST http://localhost:8080/v1/resolve \
   -H "Content-Type: application/json" \
   -d '{
-    "intent_id": "cart_abandonment",
-    "base_example": "You left items in your cart",
+    "intent_id": "cart_abandon",
+    "user_id": "test_user",
     "locale": "en-US",
-    "user_id": "user_123",
-    "context": {
-      "when": "2 hours after abandonment"
-    }
+    "base_message": "Test message",
+    "context": {}
   }'
 ```
 
-**Response:**
-```json
-{
-  "text": "Complete your purchase - items waiting in cart!",
-  "variant_id": "var_abc123",
-  "experiment_id": "1",
-  "tracking_token": "trk_xyz789"
-}
+### Interactive API Docs
+
+Visit http://localhost:8080/docs for Swagger UI with interactive API testing.
+
+---
+
+## 📝 Environment Variables
+
+| Variable        | Description                           | Default                                    |
+|-----------------|---------------------------------------|-------------------------------------------|
+| `DATABASE_URL`  | PostgreSQL connection string          | `postgresql://user:password@localhost...` |
+| `N8N_URL`       | n8n webhook URL                       | `https://n8n.example.com/webhook/resolve` |
+| `N8N_TIMEOUT`   | n8n request timeout (seconds)         | `10`                                      |
+| `API_KEY_SECRET`| Secret for API key generation         | `change-me-in-production`                 |
+| `APP_NAME`      | Application name                      | `PushBunny Backend`                       |
+| `DEBUG`         | Enable debug mode                     | `false`                                   |
+| `CORS_ORIGINS`  | Allowed CORS origins (comma-separated)| `*`                                       |
+
+---
+
+## 🎯 Architecture Overview
+
+```
+SDK → Backend → n8n → Gemini
+              ↓
+          Database (Postgres)
+              ↓
+          Dashboard
 ```
 
-### Track Events
+1. **SDK** sends notification intent to backend
+2. **Backend** forwards to **n8n** workflow
+3. **n8n** uses **Gemini** to generate optimized message
+4. **Backend** stores variant and metrics
+5. **Dashboard** queries variants and performance data
 
-```bash
-curl -X POST http://localhost:8000/v1/events \
-  -H "Authorization: Bearer pb_test_key_12345" \
-  -H "Content-Type: application/json" \
-  -d '[{
-    "type": "opened",
-    "tracking_token": "trk_xyz789",
-    "timestamp": 1699999999000,
-    "properties": {}
-  }]'
-```
+---
 
-### Get Statistics
+## 🚦 Production Checklist
 
-```bash
-curl -X GET "http://localhost:8000/v1/stats?intent_id=cart_abandonment" \
-  -H "Authorization: Bearer pb_test_key_12345"
-```
+Before deploying to production:
 
-**Response:**
-```json
-{
-  "intent_id": "cart_abandonment",
-  "total_impressions": 1000,
-  "total_opens": 150,
-  "overall_open_rate": 0.15,
-  "total_conversions": 25,
-  "overall_conversion_rate": 0.025,
-  "variants": [
-    {
-      "variant_id": "var_abc123",
-      "text": "Complete your purchase - items waiting in cart!",
-      "impressions": 334,
-      "opens": 50,
-      "open_rate": 0.15,
-      "conversions": 8,
-      "conversion_rate": 0.024
-    }
-  ]
-}
-```
+- [ ] Change `API_KEY_SECRET` to secure random string
+- [ ] Set up proper user authentication (replace simple login)
+- [ ] Configure database backups
+- [ ] Set up monitoring and logging
+- [ ] Configure CORS origins to specific domains
+- [ ] Set up Cloud SQL connection pooling
+- [ ] Enable HTTPS only
+- [ ] Set up rate limiting
+- [ ] Configure secrets management (GCP Secret Manager)
+- [ ] Set up CI/CD pipeline
 
-## Database Migrations
+---
 
-### Create a new migration:
-```bash
-alembic revision --autogenerate -m "Add new table"
-```
+## 📄 License
 
-### Apply migrations:
-```bash
-alembic upgrade head
-```
+This is a hackathon PoC. Licensing TBD.
 
-### Rollback migration:
-```bash
-alembic downgrade -1
-```
+---
 
-## Testing
+## 🤝 Contributing
 
-Run tests with pytest:
+This is an MVP built for a hackathon. Contributions welcome for:
 
-```bash
-# Run all tests
-pytest
+- Advanced variant selection algorithms
+- Better metrics aggregation
+- User authentication improvements
+- Performance optimizations
+- Test coverage
 
-# Run with coverage
-pytest --cov=app tests/
+---
 
-# Run specific test file
-pytest tests/test_message.py
-```
+## 📞 Support
 
-## Docker Deployment
+For issues or questions, please open a GitHub issue or contact the team.
 
-### Build and run:
-```bash
-docker-compose up --build
-```
+---
 
-### Run in production:
-```bash
-docker-compose -f docker-compose.yml up -d
-```
-
-### View logs:
-```bash
-docker-compose logs -f backend
-```
-
-## API Documentation
-
-Once the server is running, visit:
-- **Swagger UI:** http://localhost:8000/v1/docs
-- **ReDoc:** http://localhost:8000/v1/redoc
-- **OpenAPI JSON:** http://localhost:8000/v1/openapi.json
-
-## Development
-
-### Code Formatting
-
-```bash
-# Format code
-black app/
-
-# Sort imports
-isort app/
-
-# Lint
-flake8 app/
-```
-
-### Type Checking
-
-```bash
-mypy app/
-```
-
-## Architecture
-
-### Database Schema
-
-- **experiments:** Notification intents with variants
-- **variants:** Different message texts for an experiment
-- **impressions:** Records of messages sent to users
-- **events:** User actions (opens, conversions)
-- **api_keys:** API authentication (future use)
-
-### Service Layer
-
-- **ExperimentService:** Manages experiments and variant selection
-- **LLMService:** Generates message variants using Gemini
-- **EventService:** Tracks user events
-- **StatsService:** Aggregates performance metrics
-
-## Troubleshooting
-
-### Database Connection Issues
-
-1. Check MySQL is running: `docker-compose ps`
-2. Verify DATABASE_URL in `.env`
-3. Check MySQL logs: `docker-compose logs mysql`
-
-### LLM Generation Failures
-
-1. Verify GEMINI_API_KEY is valid
-2. Check API quota/limits
-3. Review logs for error messages
-
-### Migration Errors
-
-```bash
-# Reset database (⚠️ destroys data)
-alembic downgrade base
-alembic upgrade head
-```
-
-## Contributing
-
-1. Create a feature branch
-2. Make changes with tests
-3. Format code: `black app/ && isort app/`
-4. Run tests: `pytest`
-5. Submit pull request
-
-## License
-
-[Add your license here]
-
-## Support
-
-For issues and questions:
-- GitHub Issues: [link]
-- Documentation: [link]
-- Email: [email]
+**Built with ❤️ for the hackathon by the PushBunny team** 🐰

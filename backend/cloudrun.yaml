@@ -1,0 +1,33 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: pushbunny-backend
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: '0'
+        autoscaling.knative.dev/maxScale: '10'
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      containers:
+      - image: europe-west1-docker.pkg.dev/PROJECT_ID/pushbunny/backend:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://user:password@/pushbunny?host=/cloudsql/PROJECT_ID:REGION:INSTANCE_NAME"
+        - name: N8N_URL
+          value: "https://your-n8n-url.com/webhook/resolve"
+        - name: API_KEY_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: pushbunny-secrets
+              key: api_key_secret
+        - name: CORS_ORIGINS
+          value: "*"
+        resources:
+          limits:
+            cpu: '1'
+            memory: 512Mi

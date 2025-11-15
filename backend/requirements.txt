@@ -1,22 +1,17 @@
-# FastAPI
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-multipart==0.0.6
+# FastAPI and ASGI server
+fastapi==0.109.2
+uvicorn[standard]==0.27.1
 
 # Database
-SQLAlchemy==2.0.23
-pymysql==1.1.0
-cryptography==41.0.7
-alembic==1.12.1
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
 
-# Configuration
-python-dotenv==1.0.0
+# Pydantic for settings and validation
+pydantic==2.6.1
 pydantic-settings==2.1.0
 
-# HTTP Client for Gemini
-httpx==0.25.2
-google-generativeai==0.3.2
+# HTTP client for n8n integration
+httpx==0.26.0
 
-# Utilities
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
+# Python standard library enhancements
+python-multipart==0.0.9
