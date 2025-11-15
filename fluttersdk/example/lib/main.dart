@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttersdk/fluttersdk.dart';
+import 'services/notification_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,6 +15,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final _client = PushBunnyClient();
+  final _notificationService = NotificationService();
   final _baseMessageController = TextEditingController(
     text: 'Your package has arrived!',
   );
@@ -22,6 +24,17 @@ class _MyAppState extends State<MyApp> {
 
   String _result = '';
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeNotifications();
+  }
+
+  Future<void> _initializeNotifications() async {
+    await _notificationService.initialize();
+    await _notificationService.requestPermissions();
+  }
 
   @override
   void dispose() {
@@ -47,9 +60,15 @@ class _MyAppState extends State<MyApp> {
 
       final response = await _client.generateNotification(request);
 
+      await _notificationService.showNotification(
+        title: 'PushBunny',
+        body: response.resolvedMessage,
+      );
+
       setState(() {
         _result =
             'Success!\n\n'
+            'Notification Sent!\n\n'
             'Optimized Message:\n${response.resolvedMessage}\n\n'
             'Variant ID: ${response.variantId}';
         _isLoading = false;
@@ -78,7 +97,7 @@ class _MyAppState extends State<MyApp> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Generate Optimized Notification',
+                'Generate & Send Local Notification',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
@@ -117,7 +136,7 @@ class _MyAppState extends State<MyApp> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Generate Notification'),
+                    : const Text('Send Notification'),
               ),
               const SizedBox(height: 24),
               if (_result.isNotEmpty)
