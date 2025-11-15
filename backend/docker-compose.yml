@@ -7,7 +7,7 @@ services:
       - "8080:8080"
     environment:
       - DATABASE_URL=postgresql://pushbunny:pushbunny@db:5432/pushbunny
-      - N8N_URL=http://n8n:5678/webhook/resolve
+      - N8N_URL=https://inotter.app.n8n.cloud/webhook/a341803a-34a6-48f5-95cc-a74fb35b6518
       - API_KEY_SECRET=dev-secret-key
       - DEBUG=true
     depends_on:
