@@ -4,13 +4,13 @@ import { Bell } from 'lucide-react'
 
 export default function NotificationShowcase() {
   return (
-    <div className="relative w-full max-w-4xl mx-auto py-20">
+    <div className="relative w-full max-w-4xl mx-auto">
       <div className="text-center mb-16">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-4xl md:text-5xl font-bold mb-4"
+          className="text-4xl md:text-5xl font-bold mb-4 text-gray-900"
         >
           <span className="text-accent-coral">AI-Powered</span> Variants
         </motion.h2>
@@ -19,7 +19,7 @@ export default function NotificationShowcase() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1 }}
-          className="text-xl text-gray-400"
+          className="text-xl text-gray-600"
         >
           Watch as our AI generates and tests the perfect message
         </motion.p>

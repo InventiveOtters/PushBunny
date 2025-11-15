@@ -30,17 +30,17 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen notebook-bg relative overflow-hidden flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white relative overflow-hidden flex items-center justify-center">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-accent-coral/15 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-accent-coral/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+        <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-accent-coral/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-accent-coral/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1.5s' }}></div>
       </div>
 
       {/* Back to home link */}
       <Link 
         to="/"
-        className="absolute top-6 left-6 flex items-center gap-2 glass px-4 py-2 rounded-xl hover:bg-white/10 transition-all z-10"
+        className="absolute top-6 left-6 flex items-center gap-2 bg-white px-4 py-2 rounded-xl hover:shadow-md transition-all z-10 border border-gray-200"
       >
         <img 
           src="/logo.png" 
@@ -49,7 +49,7 @@ export default function Login() {
         />
         <span className="font-semibold">
           <span className="text-accent-coral">Push</span>
-          <span className="text-white">Bunny</span>
+          <span className="text-gray-900">Bunny</span>
         </span>
       </Link>
 
@@ -60,19 +60,19 @@ export default function Login() {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-md px-6"
       >
-        <div className="glass p-8 rounded-3xl">
+        <div className="bg-white p-8 rounded-3xl shadow-2xl border border-gray-200">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2">Access Dashboard</h1>
-            <p className="text-gray-400 mb-3">Enter your credentials to continue</p>
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-purple/10 border border-accent-purple/30 rounded-xl text-sm">
-              <Sparkles className="w-4 h-4 text-accent-purple" />
-              <span className="text-gray-300">Demo: Creates account if new, logs in if existing</span>
+            <h1 className="text-3xl font-bold mb-2 text-gray-900">Access Dashboard</h1>
+            <p className="text-gray-600 mb-3">Enter your credentials to continue</p>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent-coral/10 border border-accent-coral/30 rounded-xl text-sm">
+              <Sparkles className="w-4 h-4 text-accent-coral" />
+              <span className="text-gray-700">Demo: Creates account if new, logs in if existing</span>
             </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-300">
+              <label className="block text-sm font-medium mb-2 text-gray-700">
                 Email
               </label>
               <div className="relative">
@@ -81,7 +81,7 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-purple transition-all"
+                  className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-coral focus:border-accent-coral transition-all text-gray-900"
                   placeholder="you@example.com"
                   required
                 />
@@ -89,7 +89,7 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-300">
+              <label className="block text-sm font-medium mb-2 text-gray-700">
                 Password
               </label>
               <div className="relative">
@@ -98,7 +98,7 @@ export default function Login() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-purple transition-all"
+                  className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-coral focus:border-accent-coral transition-all text-gray-900"
                   placeholder="••••••••"
                   required
                 />
@@ -118,7 +118,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-accent-purple to-accent-blue rounded-xl font-semibold hover:shadow-xl hover:shadow-accent-purple/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3 bg-accent-coral hover:bg-accent-coral/90 rounded-xl font-semibold hover:shadow-xl hover:shadow-accent-coral/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-white"
             >
               {loading ? (
                 <>
@@ -132,7 +132,7 @@ export default function Login() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-400 mb-2">
+            <p className="text-sm text-gray-600 mb-2">
               💡 For demo: Use any email & password
             </p>
             <p className="text-xs text-gray-500">

@@ -18,6 +18,18 @@ export default {
           pink: '#EC4899',
           green: '#10B981',
           coral: '#FF938C',
+        },
+        coral: {
+          50: '#FFF5F4',
+          100: '#FFE5E3',
+          200: '#FFCCC8',
+          300: '#FFB3AD',
+          400: '#FF938C',
+          500: '#FF7A70',
+          600: '#FF6154',
+          700: '#E54839',
+          800: '#CC2F21',
+          900: '#B31609',
         }
       },
       animation: {

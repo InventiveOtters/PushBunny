@@ -53,9 +53,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen notebook-bg">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="border-b border-white/10 glass sticky top-0 z-50">
+      <header className="border-b border-gray-200 bg-white sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img 
@@ -66,9 +66,9 @@ export default function Dashboard() {
             <div>
               <h1 className="text-xl font-bold">
                 <span className="text-accent-coral">Push</span>
-                <span className="text-white">Bunny</span>
+                <span className="text-gray-900">Bunny</span>
               </h1>
-              <p className="text-xs text-gray-400">Analytics Dashboard</p>
+              <p className="text-xs text-gray-600">Analytics Dashboard</p>
             </div>
           </div>
 
@@ -78,7 +78,7 @@ export default function Dashboard() {
               whileTap={{ scale: 0.95 }}
               onClick={handleRefresh}
               disabled={refreshing}
-              className="glass glass-hover px-4 py-2 rounded-xl flex items-center gap-2 disabled:opacity-50"
+              className="bg-white hover:bg-gray-50 border border-gray-300 px-4 py-2 rounded-xl flex items-center gap-2 disabled:opacity-50 text-gray-700 transition-colors"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
@@ -88,7 +88,7 @@ export default function Dashboard() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={logout}
-              className="glass glass-hover px-4 py-2 rounded-xl flex items-center gap-2 text-red-400"
+              className="bg-white hover:bg-gray-50 border border-gray-300 px-4 py-2 rounded-xl flex items-center gap-2 text-red-600 transition-colors"
             >
               <LogOut className="w-4 h-4" />
               Logout
@@ -112,8 +112,8 @@ export default function Dashboard() {
                   onClick={() => setSelectedIntent(intent.intentId)}
                   className={`px-6 py-3 rounded-xl font-medium whitespace-nowrap transition-all ${
                     selectedIntent === intent.intentId
-                      ? 'bg-gradient-to-r from-accent-purple to-accent-blue shadow-lg'
-                      : 'glass glass-hover'
+                      ? 'bg-accent-coral text-white shadow-lg'
+                      : 'bg-white border border-gray-300 hover:border-accent-coral text-gray-700'
                   }`}
                 >
                   {formatIntentName(intent.intentId)}
@@ -168,14 +168,14 @@ export default function Dashboard() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="glass rounded-2xl overflow-hidden"
+                className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm"
               >
-                <div className="p-6 border-b border-white/10">
-                  <h2 className="text-2xl font-bold flex items-center gap-2">
-                    <Sparkles className="w-6 h-6 text-accent-purple" />
+                <div className="p-6 border-b border-gray-200">
+                  <h2 className="text-2xl font-bold flex items-center gap-2 text-gray-900">
+                    <Sparkles className="w-6 h-6 text-accent-coral" />
                     Message Variants
                   </h2>
-                  <p className="text-gray-400 mt-1">
+                  <p className="text-gray-600 mt-1">
                     {currentIntentData.variants.length} variants for {formatIntentName(selectedIntent)}
                   </p>
                 </div>
@@ -183,11 +183,11 @@ export default function Dashboard() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-white/10">
-                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Message</th>
-                        <th className="px-6 py-4 text-center text-sm font-semibold text-gray-300">Sent</th>
-                        <th className="px-6 py-4 text-center text-sm font-semibold text-gray-300">Clicked</th>
-                        <th className="px-6 py-4 text-center text-sm font-semibold text-gray-300">CTR</th>
+                      <tr className="border-b border-gray-200 bg-gray-50">
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Message</th>
+                        <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">Sent</th>
+                        <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">Clicked</th>
+                        <th className="px-6 py-4 text-center text-sm font-semibold text-gray-700">CTR</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -210,24 +210,31 @@ export default function Dashboard() {
 
 function StatCard({ icon, label, value, color }) {
   const colorClasses = {
-    blue: 'from-accent-blue/20 to-accent-blue/5',
-    purple: 'from-accent-purple/20 to-accent-purple/5',
-    pink: 'from-accent-pink/20 to-accent-pink/5',
-    green: 'from-accent-green/20 to-accent-green/5',
+    blue: 'from-blue-50 to-blue-100 border-blue-200',
+    purple: 'from-pink-50 to-pink-100 border-pink-200',
+    pink: 'from-coral-50 to-coral-100 border-accent-coral/30',
+    green: 'from-green-50 to-green-100 border-green-200',
+  }
+
+  const iconColorClasses = {
+    blue: 'bg-blue-500',
+    purple: 'bg-accent-coral',
+    pink: 'bg-accent-coral',
+    green: 'bg-green-500',
   }
 
   return (
     <motion.div
       whileHover={{ y: -4 }}
-      className={`glass p-6 rounded-2xl bg-gradient-to-br ${colorClasses[color]}`}
+      className={`bg-white border p-6 rounded-2xl bg-gradient-to-br ${colorClasses[color]} shadow-sm`}
     >
       <div className="flex items-center justify-between mb-4">
-        <div className="p-3 rounded-xl bg-white/5">
+        <div className={`p-3 rounded-xl ${iconColorClasses[color]} text-white`}>
           {icon}
         </div>
       </div>
-      <p className="text-gray-400 text-sm mb-1">{label}</p>
-      <p className="text-3xl font-bold">{value}</p>
+      <p className="text-gray-600 text-sm mb-1">{label}</p>
+      <p className="text-3xl font-bold text-gray-900">{value}</p>
     </motion.div>
   )
 }
@@ -237,9 +244,9 @@ function ChartCard({ title, children }) {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="glass p-6 rounded-2xl"
+      className="bg-white border border-gray-200 p-6 rounded-2xl shadow-sm"
     >
-      <h3 className="text-lg font-semibold mb-6">{title}</h3>
+      <h3 className="text-lg font-semibold mb-6 text-gray-900">{title}</h3>
       {children}
     </motion.div>
   )
@@ -255,18 +262,19 @@ function BarChartComponent({ variants }) {
   return (
     <ResponsiveContainer width="100%" height={250}>
       <BarChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis dataKey="name" stroke="#9CA3AF" />
         <YAxis stroke="#9CA3AF" />
         <Tooltip 
           contentStyle={{ 
-            backgroundColor: '#0A0828', 
-            border: '1px solid #ffffff20',
-            borderRadius: '12px'
+            backgroundColor: '#ffffff', 
+            border: '1px solid #e5e7eb',
+            borderRadius: '12px',
+            color: '#111827'
           }}
         />
         <Bar dataKey="sent" fill="#3B82F6" radius={[8, 8, 0, 0]} />
-        <Bar dataKey="clicked" fill="#8B5CF6" radius={[8, 8, 0, 0]} />
+        <Bar dataKey="clicked" fill="#FF938C" radius={[8, 8, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   )
@@ -282,22 +290,23 @@ function LineChartComponent({ variants }) {
   return (
     <ResponsiveContainer width="100%" height={250}>
       <LineChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis dataKey="name" stroke="#9CA3AF" />
         <YAxis stroke="#9CA3AF" />
         <Tooltip 
           contentStyle={{ 
-            backgroundColor: '#0A0828', 
-            border: '1px solid #ffffff20',
-            borderRadius: '12px'
+            backgroundColor: '#ffffff', 
+            border: '1px solid #e5e7eb',
+            borderRadius: '12px',
+            color: '#111827'
           }}
         />
         <Line 
           type="monotone" 
           dataKey="CTR" 
-          stroke="#8B5CF6" 
+          stroke="#FF938C" 
           strokeWidth={3}
-          dot={{ fill: '#8B5CF6', r: 4 }}
+          dot={{ fill: '#FF938C', r: 4 }}
         />
         <Line 
           type="monotone" 
@@ -319,23 +328,23 @@ function VariantRow({ variant, index }) {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
-      className="border-b border-white/5 hover:bg-white/5 transition-colors"
+      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
     >
       <td className="px-6 py-4">
         <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center font-semibold text-sm flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-accent-coral flex items-center justify-center font-semibold text-sm flex-shrink-0 text-white">
             {index + 1}
           </div>
-          <p className="text-sm leading-relaxed">{variant.message}</p>
+          <p className="text-sm leading-relaxed text-gray-900">{variant.message}</p>
         </div>
       </td>
       <td className="px-6 py-4 text-center">
-        <span className="px-3 py-1 bg-accent-blue/20 rounded-lg text-sm font-medium">
+        <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium">
           {variant.sent}
         </span>
       </td>
       <td className="px-6 py-4 text-center">
-        <span className="px-3 py-1 bg-accent-purple/20 rounded-lg text-sm font-medium">
+        <span className="px-3 py-1 bg-coral-100 text-accent-coral rounded-lg text-sm font-medium">
           {variant.clicked}
         </span>
       </td>
@@ -352,7 +361,7 @@ function VariantRow({ variant, index }) {
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen notebook-bg flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -361,9 +370,9 @@ function LoadingScreen() {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="w-16 h-16 border-4 border-accent-purple/30 border-t-accent-purple rounded-full mx-auto mb-4"
+          className="w-16 h-16 border-4 border-accent-coral/30 border-t-accent-coral rounded-full mx-auto mb-4"
         />
-        <p className="text-gray-400">Loading dashboard...</p>
+        <p className="text-gray-600">Loading dashboard...</p>
       </motion.div>
     </div>
   )
@@ -376,11 +385,11 @@ function EmptyState() {
       animate={{ opacity: 1, scale: 1 }}
       className="text-center py-20"
     >
-      <div className="w-24 h-24 bg-gradient-to-br from-accent-purple/20 to-accent-blue/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
-        <Sparkles className="w-12 h-12 text-accent-purple" />
+      <div className="w-24 h-24 bg-accent-coral/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
+        <Sparkles className="w-12 h-12 text-accent-coral" />
       </div>
-      <h2 className="text-2xl font-bold mb-2">No Data Yet</h2>
-      <p className="text-gray-400 mb-8">
+      <h2 className="text-2xl font-bold mb-2 text-gray-900">No Data Yet</h2>
+      <p className="text-gray-600 mb-8">
         Start sending notifications to see analytics here
       </p>
     </motion.div>
