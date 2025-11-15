@@ -1,1 +1,5 @@
 rootProject.name = 'fluttersdk'
+
+// Include the Kotlin SDK library
+include ':sdk:library'
+project(':sdk:library').projectDir = new File(rootProject.projectDir, '../../sdk/library')
