@@ -471,15 +471,10 @@ Contributions are welcome! Please follow these guidelines:
 4. Ensure all tests pass
 5. Submit a pull request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## 🆘 Support
 
-- **Issues**: [GitHub Issues](https://github.com/your-org/pushbunny/issues)
-- **Documentation**: [Full Documentation](https://github.com/your-org/pushbunny)
-- **Email**: support@pushbunny.io
+- **Issues**: [GitHub Issues](https://github.com/InventiveOtters/PushBunny/issues)
+- **Documentation**: [Full Documentation](https://github.com/InventiveOtters/PushBunny)
 
 ## 🎉 Acknowledgments
 
