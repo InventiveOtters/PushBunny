@@ -3,17 +3,15 @@ import { Sparkles, ArrowRight, Code } from 'lucide-react'
 
 export default function IntegrationShowcase() {
   const variants = [
-    { text: "You left your products in your cart 🛒", language: "English" },
-    { text: "You forgot something in your cart!", language: "English (Variant)" },
-    { text: "Ai uitat ceva in cosul de cumparaturi!", language: "Romanian" },
-    { text: "Your cart is waiting for you 💕", language: "English (Emoji)" },
-    { text: "Complete your purchase before items sell out!", language: "English (Urgent)" }
+    { text: "Special offer just for you! Get 20% off Pampers diapers 🍼", language: "English" },
+    { text: "Your baby deserves the best - 20% off all Pampers today! 💕", language: "English (Variant)" },
+    { text: "Sonderangebot! 20% Rabatt auf alle Pampers Windeln", language: "German" }
   ]
 
   const jsonIntent = `{
-  "intent_id": "cart_abandon",
-  "context": "User is from <location>, New user",
-  "base_message": "You left something in your cart!"
+  "intent_id": "pampers_promo",
+  "context": "<User Context>",
+  "base_message": "Claim your 20% off diapers coupon now!"
 }`
 
   return (
@@ -41,7 +39,7 @@ export default function IntegrationShowcase() {
 
         {/* Main Showcase */}
         <div className="relative max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-[400px,1fr] gap-8 items-start">
+          <div className="grid lg:grid-cols-[600px,1fr] gap-8 items-start">
             {/* Left: JSON Snippet */}
             <motion.div
               initial={{ opacity: 0, x: -40 }}
