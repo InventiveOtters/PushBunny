@@ -13,24 +13,70 @@ from ..models import Variant, Metric
 logger = logging.getLogger(__name__)
 
 
-def store_variant(
+def find_duplicate_variant(
     db: Session,
     intent_id: str,
     message: str,
     locale: str = "en-US"
+) -> Optional[Variant]:
+    """
+    Check if a variant with the same message already exists for this intent.
+
+    Args:
+        db: Database session
+        intent_id: Intent identifier
+        message: Message text to check
+        locale: Message locale
+
+    Returns:
+        Existing Variant instance if duplicate found, None otherwise
+    """
+    # Normalize message for comparison (strip whitespace, lowercase)
+    normalized_message = message.strip().lower()
+
+    # Query all variants for this intent and locale
+    variants = db.query(Variant).filter(
+        Variant.intent_id == intent_id,
+        Variant.locale == locale
+    ).all()
+
+    # Check for exact match (case-insensitive, whitespace-normalized)
+    for variant in variants:
+        if variant.message.strip().lower() == normalized_message:
+            logger.info(f"Found duplicate variant {variant.id} for intent {intent_id}")
+            return variant
+
+    return None
+
+
+def store_variant(
+    db: Session,
+    intent_id: str,
+    message: str,
+    locale: str = "en-US",
+    check_duplicates: bool = True
 ) -> Variant:
     """
     Store a new variant in the database.
-    
+
     Args:
         db: Database session
         intent_id: Intent identifier
         message: AI-generated message text
         locale: Message locale
-        
+        check_duplicates: If True, check for duplicates before storing
+
     Returns:
-        Created Variant instance
+        Created Variant instance (or existing if duplicate found)
     """
+    # Check for duplicates if enabled
+    if check_duplicates:
+        existing = find_duplicate_variant(db, intent_id, message, locale)
+        if existing:
+            logger.info(f"Reusing existing variant {existing.id} (duplicate message)")
+            return existing
+
+    # Create new variant
     variant = Variant(
         intent_id=intent_id,
         message=message,
@@ -39,7 +85,7 @@ def store_variant(
     db.add(variant)
     db.commit()
     db.refresh(variant)
-    
+
     logger.info(f"Stored new variant {variant.id} for intent {intent_id}")
     return variant
 

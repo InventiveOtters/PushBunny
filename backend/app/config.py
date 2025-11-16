@@ -27,7 +27,12 @@ class Settings(BaseSettings):
     
     # CORS
     cors_origins: list[str] = ["*"]
-    
+
+    # A/B Testing (Thompson Sampling)
+    ab_exploration_threshold: int = 50  # Min notifications before Thompson Sampling starts
+    ab_exploration_rate: float = 0.1    # Probability to generate completely new variant
+    ab_duplicate_retry_max: int = 3     # Max retries when AI generates duplicate message
+
     class Config:
         env_file = ".env"
         case_sensitive = False

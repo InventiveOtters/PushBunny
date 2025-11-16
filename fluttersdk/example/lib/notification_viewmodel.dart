@@ -6,7 +6,8 @@ import '../services/notification_storage_service.dart';
 class NotificationViewModel extends ChangeNotifier {
   final PushBunnyClient _client = PushBunnyClient();
   final NotificationService _notificationService = NotificationService();
-  final NotificationStorageService _storageService = NotificationStorageService.instance;
+  final NotificationStorageService _storageService =
+      NotificationStorageService.instance;
 
   String _result = '';
   bool _isLoading = false;
@@ -49,6 +50,7 @@ class NotificationViewModel extends ChangeNotifier {
         context: 'general',
         apiKey: 'your-api-key-here',
         locale: 'en-US',
+        intentId: "TestPushNotification",
       );
 
       final response = await _client.generateNotification(request);
@@ -76,7 +78,8 @@ class NotificationViewModel extends ChangeNotifier {
         debugPrint('Failed to record sent metric: ${e.message}');
       }
 
-      _result = 'Success!\n\n'
+      _result =
+          'Success!\n\n'
           'Notification Sent!\n\n'
           'Optimized Message:\n${response.resolvedMessage}\n\n'
           'Variant ID: ${response.variantId}';
@@ -98,4 +101,3 @@ class NotificationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 }
-
